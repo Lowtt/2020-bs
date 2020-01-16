@@ -33,6 +33,7 @@ export default {
   color: #2c3e50;
   height: 100%;
   overflow-y: auto;
+  min-width: 1280px;
 }
 .ant-layout-content{
   overflow: auto
