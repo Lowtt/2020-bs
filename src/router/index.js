@@ -31,12 +31,12 @@ export default new Router({
             }]
         },
         {
-            path: '/绩分管理',
+            path: '/点餐管理',
             component: index,
             children: [{
-                    path: '/grade/incRecord',
+                    path: '/order/orderManage',
                     component: () =>
-                        import ('../pages/grade/incRecord')
+                        import ('../pages/order/orderManage') //点餐页面
                 },
                 {
                     path: '/grade/decRecord',
