@@ -28,18 +28,6 @@ export default new Router({
                 path: '/index/index',
                 component: () =>
                     import ('../pages/index/index')
-            }, {
-                path: '/index/dailyDetail',
-                component: () =>
-                    import ('../pages/index/dailyDetail')
-            }, {
-                path: '/index/personalRanke',
-                component: () =>
-                    import ('../pages/index/personalRanke')
-            }, {
-                path: '/index/departmentRanke',
-                component: () =>
-                    import ('../pages/index/departmentRanke.vue')
             }]
         },
         {
