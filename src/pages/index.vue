@@ -6,7 +6,7 @@
       </div>
     </a-layout-header>
 
-    <a-layout :style="{'height':isHeight+'px !important' }">
+    <a-layout :style="{'min-height':isHeight+'px !important' }">
       <a-layout-sider>
         <a-menu mode="inline" theme="dark">
           <a-menu-item class="menuBase" v-on:click="toIndex">
@@ -107,6 +107,12 @@ export default {
   line-height: 60px;
   padding-left: 20px;
   text-align: start;
+}
+.ant-layout-sider{
+  background: rgb(33,43,51);
+  .ant-menu-dark{
+    background: rgb(33,43,51);
+  }
 }
 .menuBase {
   min-width: 180px;

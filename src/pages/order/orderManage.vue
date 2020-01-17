@@ -1,53 +1,62 @@
 <template>
   <div style="width: 96%;margin: 0 auto">
-    <a-row style="margin-top: 20px">
-      <a-table :columns="columns" :dataSource="tableData" :pagination="pagination" bordered>
-        <span slot="action" slot-scope="text, record">
-          <a @click="detail(record)">查看</a>
-        </span>
-      </a-table>
+    <a-row class="content">
+      <a-col :span="10" class="left-content" :style="{'min-height':contentHeight+'px !important' }">
+        <a-tabs>
+          <a-tab-pane tab="结账" key="1">
+            <div style="padding-right:10px">
+              <a-table :columns="columns" :dataSource="tableData" :pagination="pagination" bordered>
+                <span slot="action" slot-scope="text, record">
+                  <a @click="detail(record)">查看</a>
+                </span>
+              </a-table>
+            </div>
+          </a-tab-pane>
+          <a-tab-pane tab="挂单" key="2">这是挂单的数据</a-tab-pane>
+          <a-tab-pane tab="外卖" key="3">这是外卖的数据</a-tab-pane>
+        </a-tabs>
+      </a-col>
+      <a-col :span="14" class="right-content" :style="{'min-height':contentHeight+'px !important' }">
+        <a-row class="popular-content">
+          <h2 :style="{'color':popularColor,'padding-top':'10px','margin':0}">
+            <b>火 热 菜 品</b>
+          </h2>
+          <a-divider style="margin:3px 0" />
+        </a-row>
+        <a-divider style="margin:3px 0" />
+        <a-row>
+          <a-tabs>
+            <a-tab-pane tab="主食" key="mainFood">这是主食的数据</a-tab-pane>
+            <a-tab-pane tab="小食" key="sideFood">这是小食的数据</a-tab-pane>
+            <a-tab-pane tab="饮料" key="drink">这是饮料的数据</a-tab-pane>
+            <a-tab-pane tab="套餐" key="combo">这是套餐的数据</a-tab-pane>
+          </a-tabs>
+        </a-row>
+      </a-col>
     </a-row>
   </div>
 </template>
 
 <script>
-import {
-  staticTemplateList,
-  applicationIntegralRecordSave,
-  addScrollRecord,
-  addScrollDetail,
-  upEntry,
-  DownLoade,
-  url
-} from "../../axios/api";
+import { addScrollDetail } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
-    dataIndex: "processingTime",
-    title: "加分时间",
+    dataIndex: "name",
+    title: "商品名称",
     align: "center"
   },
   {
-    title: "分值",
+    title: "单价",
+    dataIndex: "price",
+    align: "center"
+  },
+  {
+    title: "数量",
     dataIndex: "num",
     align: "center"
   },
-  {
-    title: "绩分类型",
-    dataIndex: "staticTemplate",
-    align: "center"
-  },
-  {
-    title: "加分原因",
-    dataIndex: "applyReason",
-    align: "center"
-  },
-  {
-    title: "审核状态",
-    dataIndex: "applyStatus",
-    customRender: text => applyStatus[text],
-    align: "center"
-  },
+
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
@@ -55,23 +64,9 @@ const columns = [
   }
 ];
 
-const applyStatus = {
-  1: "待审核",
-  2: "驳回",
-  3: "已通过"
-};
-
 export default {
   data() {
     return {
-      isApply: false,
-      form: this.$form.createForm(this),
-      tableData: [],
-      template: [],
-      applyResult: {},
-      applyStatus,
-      url,
-      applyFiles: [],
       pagination: {
         size: "small",
         pageSize: 10,
@@ -79,21 +74,15 @@ export default {
         showSizeChanger: true,
         showTotal: () => `共1000条`
       },
-      filePaths: [],
-      labelCol: {
-        span: 5
-      },
-      wrapperCol: {
-        span: 16
-      },
-      visible: false,
+      popularColor: "#000",
       columns,
-      queryParams: { size: 10, indexPage: 1 }
+      tableData: [],
+
+      contentHeight: this.$store.getters.getHeight - 76
     };
   },
   created() {
-    this.getInitData();
-    this.staticTemplateList();
+    this.setPopularColor();
   },
   mounted() {
     let type = this.$route.query.type;
@@ -103,58 +92,17 @@ export default {
     }
   },
   methods: {
-    staticTemplateList() {
-      staticTemplateList({
-        indexPage: 1,
-        size: 20
-      }).then(res => {
-        if (res.code == 0) {
-          this.template = res.data.list;
-        }
-      });
+    // 设置火热菜品颜色
+    setPopularColor: function() {
+      setInterval(() => {
+        this.popularColor =
+          "#" +
+          Math.floor(Math.random() * 0xffffff)
+            .toString(16)
+            .padEnd(6, "0");
+      }, 1000);
     },
-    exportFn() {
-      DownLoade("/api/teacher/applicationIntegralRecord/excelCutList").then(
-        res => {
-          var filename = "加分记录";
-          var binaryData = [];
-          binaryData.push(res);
-          let url = window.URL.createObjectURL(
-            new Blob(binaryData, { type: "application/zip" })
-          );
-          let link = document.createElement("a");
-          link.style.display = "none";
-          link.href = url;
-          link.setAttribute("download", filename + ".xls");
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        }
-      );
-    },
-    modelCancel() {
-      this.visible = false;
-      this.applyResult = {};
-      this.applyFiles = [];
-      this.form.resetFields();
-    },
-    upLoadFile(file) {
-      this.applyFiles = file.fileList;
-      if (file.file.status == "done") {
-        this.realyUpload(file);
-      }
-    },
-    realyUpload(file) {
-      let form = new FormData();
-      form.append("file", file.file.originFileObj);
-      upEntry(form).then(res => {
-        if (res.code == 0) {
-          let arr = this.filePaths;
-          arr.push(res.data.filePath);
-          this.filePaths = arr;
-        }
-      });
-    },
+
     detail(obj) {
       addScrollDetail({ id: obj.id }).then(res => {
         if (res.code == 0) {
@@ -172,55 +120,18 @@ export default {
           this.$message.error(res.msg);
         }
       });
-    },
-    getInitData() {
-      addScrollRecord(this.queryParams).then(res => {
-        if (res.code == 0) {
-          this.tableData = res.data.list;
-          this.pagination.showTotal = () => `共${res.data.total}条`;
-        }
-      });
-    },
-    templateChange(val) {
-      this.queryParams = {
-        ...this.queryParams,
-        obj: { ...this.queryParams.obj, staticTemplateId: val }
-      };
-      this.getInitData();
-    },
-    timeQuery(val) {
-      let time = moment(val._d).format("YYYY-MM-DD HH:mm:ss");
-      this.queryParams = {
-        ...this.queryParams,
-        obj: { ...this.queryParams.obj, createTime: time }
-      };
-      this.getInitData();
-    },
-    applyChangeRecord() {
-      this.isApply = true;
-      this.visible = true;
-    },
-    submit() {
-      this.form.validateFields((err, val) => {
-        if (!err) {
-          val.paths = this.filePaths;
-          applicationIntegralRecordSave(val).then(res => {
-            if (res.code == 0) {
-              this.form.resetFields();
-              this.visible = false;
-              this.getInitData();
-              this.applyFiles = [];
-              this.$message.success(res.msg);
-            } else {
-              this.$message.error(res.msg);
-            }
-          });
-        }
-      });
     }
   }
 };
 </script>
 
 <style scoped>
+.left-content,
+.right-content {
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.popular-content {
+  height: 400px;
+}
 </style>
