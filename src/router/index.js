@@ -38,26 +38,26 @@ export default new Router({
                     component: () =>
                         import ('../pages/order/orderManage') //点餐页面
                 },
-                {
-                    path: '/grade/decRecord',
-                    component: () =>
-                        import ('../pages/grade/decRecord')
-                },
-                {
-                    path: '/grade/gradeRank',
-                    component: () =>
-                        import ('../pages/grade/gradeRank')
-                },
-                {
-                    path: '/grade/datailDec',
-                    component: () =>
-                        import ('../pages/grade/datailDec')
-                },
-                {
-                    path: '/grade/departmentRank',
-                    component: () =>
-                        import ('../pages/grade/departmentRank')
-                }
+                // {
+                //     path: '/grade/decRecord',
+                //     component: () =>
+                //         import ('../pages/grade/decRecord')
+                // },
+                // {
+                //     path: '/grade/gradeRank',
+                //     component: () =>
+                //         import ('../pages/grade/gradeRank')
+                // },
+                // {
+                //     path: '/grade/datailDec',
+                //     component: () =>
+                //         import ('../pages/grade/datailDec')
+                // },
+                // {
+                //     path: '/grade/departmentRank',
+                //     component: () =>
+                //         import ('../pages/grade/departmentRank')
+                // }
             ]
         },
         {
