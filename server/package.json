@@ -1,0 +1,15 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "description": "这是系统的后端接口",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "hotnode app.js"
+    },
+    "author": "wtt",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}
