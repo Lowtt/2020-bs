@@ -3,7 +3,7 @@ const router = express.Router()
 const db = require('../mysql/mysql.js')
 
 router.get('/login', (req, res) => {
-    let sql = 'SELECT * FROM 测试数据库.students'
+    let sql = 'SELECT * FROM bishe.login'
     db.sqlQuery(sql).then(result => {
         res.json({
             status: 200,

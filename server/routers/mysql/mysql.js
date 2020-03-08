@@ -6,9 +6,9 @@ const mysql = require("mysql");
 //     password: "admin"
 // });
 const dbPool = mysql.createPool({
-    host: 'localhost',
-    user: 'admin',
-    password: 'admin',
+    host: '123.56.12.45',
+    user: 'root',
+    password: '20150611WTThzb',
     port: '3306',
     connectionLimit: 100, //最大连接数
 })
