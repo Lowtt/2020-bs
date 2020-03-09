@@ -1,8 +1,6 @@
 import request from './request'
 
-//const baseUrl = 'http://106.75.97.26:8888/dms'
-//const baseUrl = 'http://daduo.natapp1.cc/workers'
-// const baseUrl = 'http://daduo2.natapp1.cc/workers'
+
 const baseUrl = "http://106.75.97.26:8999/workers"
 
 const requestWrapper = (method, url, params = {}) => {

@@ -128,7 +128,7 @@ export default {
           return;
         }
         changePassWord({
-          loginName: this.userName,
+          username: this.userName,
           oldPassword: this.passWord,
           newPassword: this.newAassWord2
         }).then(res => {
@@ -146,7 +146,7 @@ export default {
       } else {
         login({
           user: {
-            loginName: this.userName,
+            username: this.userName,
             password: this.passWord
           },
           type: 2
