@@ -10,6 +10,7 @@ const dbPool = mysql.createPool({
     user: 'root',
     password: '20150611WTThzb',
     port: '3306',
+    database: 'bishe',
     connectionLimit: 100, //最大连接数
 })
 

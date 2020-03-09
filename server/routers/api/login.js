@@ -13,7 +13,7 @@ router.post('/login', (req, res) => {
         username,
         password
     } = req.body
-    let sql = 'SELECT * FROM bishe.login WHERE username = ?'
+    let sql = 'SELECT * FROM login WHERE username = ?'
     db.sqlQuery(sql, username).then(result => {
         if (result.length) {
             if (result[0].password == password) {
@@ -58,8 +58,8 @@ router.post('/changePassword', (req, res) => {
         oldPassword,
         newPassword
     } = req.body
-    let querySql = 'SELECT * FROM bishe.login WHERE username = ?'
-    let addSql = 'UPDATE bishe.login SET password = ? WHERE username = ?'
+    let querySql = 'SELECT * FROM login WHERE username = ?'
+    let addSql = 'UPDATE login SET password = ? WHERE username = ?'
     db.sqlQuery(querySql, username).then(result => {
         if (result.length) {
             if (result[0].password == oldPassword) {
@@ -93,8 +93,8 @@ router.post('/regUser', (req, res) => {
         username,
         password
     } = req.body
-    let querySql = 'SELECT * FROM bishe.login WHERE username = ?'
-    let regSql = 'INSERT INTO bishe.login (username,password) VALUES (?,?)'
+    let querySql = 'SELECT * FROM login WHERE username = ?'
+    let regSql = 'INSERT INTO login (username,password) VALUES (?,?)'
     db.sqlQuery(querySql, username).then(result => {
         if (result.length) {
             let response = new Response('该用户已存在!', 250)
