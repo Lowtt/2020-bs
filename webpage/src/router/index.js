@@ -14,7 +14,7 @@ export default new Router({
             name: 'App',
             component: () =>
                 import ('../App'),
-            redirect: '/index/index',
+            redirect: '/login',
         }, {
             path: '/login',
             name: '登录',

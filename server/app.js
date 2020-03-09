@@ -13,5 +13,5 @@ const app = express()
     // });
 app.use(cors()) //解决跨域
 app.use(bodyParser.json()) //解析表单数据,post:req.body;get:req.query
-app.use('/api/0/user', loginRouter)
+app.use('/api/user', loginRouter)
 app.listen(3000)

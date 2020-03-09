@@ -1,7 +1,7 @@
 import request from './request'
 
 
-const baseUrl = "http://106.75.97.26:8999/workers"
+const baseUrl = "http://192.168.50.4:3000"
 
 const requestWrapper = (method, url, params = {}) => {
     return new Promise((resolve, reject) => {
@@ -11,11 +11,14 @@ const requestWrapper = (method, url, params = {}) => {
     })
 }
 export const url = baseUrl
-    // 登录 post
+    // 登录 
 export const login = params => requestWrapper('post', `${baseUrl}/api/user/login`, params)
 
 // 修改密码
-export const changePassWord = params => requestWrapper('post', `${baseUrl}/api/user/updatePassword`, params)
+export const changePassWord = params => requestWrapper('post', `${baseUrl}/api/user/changePassword`, params)
+
+// 注册
+export const regUser = params => requestWrapper('post', `${baseUrl}/api/user/regUser`, params)
 
 //个人信息(首页)
 export const userInfo = params => requestWrapper('post', `${baseUrl}/api/user/getCurrentTeacher`, params)

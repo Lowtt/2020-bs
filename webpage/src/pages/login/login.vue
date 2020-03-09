@@ -132,7 +132,7 @@ export default {
           oldPassword: this.passWord,
           newPassword: this.newAassWord2
         }).then(res => {
-          if (res.code == 0) {
+          if (res.code == 200) {
             this.$message.success(res.msg);
             this.isChange = false;
             this.userName = "";
@@ -140,22 +140,20 @@ export default {
             this.newAassWord2 = "";
             this.newAassWord1 = "";
           } else {
-            this.$message.error(res.msg);
+            this.$message.error(res.message);
           }
         });
       } else {
         login({
-          user: {
-            username: this.userName,
-            password: this.passWord
-          },
-          type: 2
+          username: this.userName,
+          password: this.passWord
         }).then(res => {
-          if (res.code == 0) {
-            this.$router.push("/index/index");
-            sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+          if (res.code == 200) {
+            // this.$router.push("/index/index");
+            // sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+            console.log(res)
           } else {
-            this.$message.error(res.msg);
+            this.$message.error(res.message);
           }
         });
       }

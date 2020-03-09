@@ -1,3 +1,5 @@
+//登录,注册,修改密码api
+
 const express = require('express')
 const jwt = require('jsonwebtoken') //token验证
 const router = express.Router()
@@ -25,9 +27,11 @@ router.post('/login', (req, res) => {
                 });
                 let obj = {
                     code: 200,
-                    username: username,
-                    message: '登陆成功!',
-                    token: token
+                    message: '登录成功!',
+                    data: {
+                        username: username,
+                        token: token
+                    }
                 }
                 res.json(obj)
             } else {
@@ -38,9 +42,73 @@ router.post('/login', (req, res) => {
             let response = new Response('用户名不存在!', 250)
             res.json(response)
         }
+    }).catch(err => {
+        res.json({
+            status: 250,
+            message: err
+        })
 
+    })
+})
 
+// 修改密码接口
+router.post('/changePassword', (req, res) => {
+    let {
+        username,
+        oldPassword,
+        newPassword
+    } = req.body
+    let querySql = 'SELECT * FROM bishe.login WHERE username = ?'
+    let addSql = 'UPDATE bishe.login SET password = ? WHERE username = ?'
+    db.sqlQuery(querySql, username).then(result => {
+        if (result.length) {
+            if (result[0].password == oldPassword) {
+                db.sqlQuery(addSql, [newPassword, username]).then(() => {
+                    let response = new Response('修改成功!', 200)
+                    res.json(response)
+                }).catch(err => {
+                    let response = new Response(err, 250)
+                    res.json(response)
+                })
+            } else {
+                let response = new Response('账户或密码错误!', 250)
+                res.json(response)
+            }
+        } else {
+            let response = new Response('修改的用户名不存在!', 250)
+            res.json(response)
+        }
+    }).catch(err => {
+        res.json({
+            status: 250,
+            message: err
+        })
 
+    })
+})
+
+// 注册接口
+router.post('/regUser', (req, res) => {
+    let {
+        username,
+        password
+    } = req.body
+    let querySql = 'SELECT * FROM bishe.login WHERE username = ?'
+    let regSql = 'INSERT INTO bishe.login (username,password) VALUES (?,?)'
+    db.sqlQuery(querySql, username).then(result => {
+        if (result.length) {
+            let response = new Response('该用户已存在!', 250)
+            res.json(response)
+        } else {
+            db.sqlQuery(regSql, [username, password]).then(() => {
+                let response = new Response('注册成功!', 200)
+                res.json(response)
+            }).catch(err => {
+                let response = new Response(err, 250)
+                res.json(response)
+            })
+
+        }
     }).catch(err => {
         res.json({
             status: 250,
