@@ -1,5 +1,5 @@
 <template>
-  <div id="login">
+  <div id="reg">
     <div style="padding-top: 150px">
       <div style="margin-bottom: 30px">
         <h1>设备资产管理系统</h1>
@@ -29,12 +29,16 @@
             <a-icon slot="prefix" type="lock" />
           </a-input>
         </div>
-        <div class="small-text">
+
+     
+          <div class="small-text">
           <span class="changeBtn" @click="changePassword">修改密码</span>
-          <span class="regBtn" @click="regAccount">注册用户</span>
+          <span class="loginBtn" @click="toLogin">我要登录</span>
         </div>
+          
+        
         <div style="margin-top: 20px">
-          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="toIndex">登录</a-button>
+          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="toIndex">注册</a-button>
         </div>
       </div>
     </div>
@@ -42,9 +46,9 @@
 </template>
 
 <script>
-import { login } from "../../axios/api";
+import { regUser } from "../../axios/api";
 export default {
-  name: "login",
+  name: "reg",
   data() {
     return {
       userName: "",
@@ -52,19 +56,15 @@ export default {
     };
   },
   created() {},
-  beforeMount() {
-    let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-    if (userInfo && userInfo.token) {
-      this.$router.push("/index/index");
-    }
-  },
+
   methods: {
-    regAccount: function() {
-      this.$router.push("/reg");
-    },
     changePassword() {
       this.$router.push("/update");
     },
+    toLogin: function(){
+      this.$router.push("/login");
+    },
+
     toIndex: function() {
       if (this.userName == "") {
         this.$message.error("请输入账号!");
@@ -74,17 +74,15 @@ export default {
         this.$message.error("请输入密码!");
         return;
       }
-
-      login({
+      regUser({
         username: this.userName,
         password: this.passWord
       }).then(res => {
         if (res.code == 200) {
-          this.$message.success("登录成功!");
-          this.$router.push("/index/index");
-          sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-        } else {
-          this.$message.error(res.message);
+          this.$message.success("注册成功,请登录!");
+          this.$router.push("/login");
+        }else{
+          this.$message.error(res.message)
         }
       });
     }
@@ -100,12 +98,12 @@ export default {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
-  .changeBtn,
-  .regBtn {
+  .loginBtn,
+  .changeBtn {
     color: rgb(78, 166, 252);
   }
-  .changeBtn:hover,
-  .regBtn:hover {
+  .loginBtn:hover,
+  .changeBtn:hover {
     color: blue;
     cursor: pointer;
     text-decoration: underline;

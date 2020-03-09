@@ -17,14 +17,13 @@ axios.interceptors.request.use(config => {
 
 // 判断token过期
 axios.interceptors.response.use(function(response) {
-    if (response.data.code != 11) {
+    if (response.data.code != 3600) {
         return response;
     } else {
         this.$message.error('用户信息过期，请重新登录!');
         this.$router.replace('/login')
     }
 }, function(error) {
-    // Do something with response error
     return Promise.reject(error);
 });
 

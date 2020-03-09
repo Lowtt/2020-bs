@@ -2,9 +2,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import login from '../pages/login/login';
+import { login, reg, update } from '../pages/login';
 import index from '../pages/index';
-
+// import reg from '../pages/login/reg';
 Vue.use(Router)
 
 export default new Router({
@@ -19,6 +19,14 @@ export default new Router({
             path: '/login',
             name: '登录',
             component: login
+        }, {
+            path: '/reg',
+            name: '注册',
+            component: reg
+        }, {
+            path: '/update',
+            name: '修改密码',
+            component: update
         },
         {
             path: '/index',
