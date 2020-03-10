@@ -20,6 +20,12 @@ export const changePassWord = params => requestWrapper('post', `${baseUrl}/api/u
 // 注册
 export const regUser = params => requestWrapper('post', `${baseUrl}/api/user/regUser`, params)
 
+// 火热菜品
+export const queryHotFoods = params => requestWrapper('post', `${baseUrl}/api/food/queryHotFoods`, params)
+
+// 菜品分类
+export const queryFoodType = params => requestWrapper('post', `${baseUrl}/api/food/queryFoodsByType`, params)
+
 //个人信息(首页)
 export const userInfo = params => requestWrapper('post', `${baseUrl}/api/user/getCurrentTeacher`, params)
 

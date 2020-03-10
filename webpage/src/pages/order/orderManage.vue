@@ -77,15 +77,15 @@
           <div class="hot-food-area">
             <div
               class="hot-food-single"
-              v-for="item in hotFood"
+              v-for="item in hotFoods"
               :key="item.name"
               @click="orderFood(item)"
             >
               <a-row>
-                <a-col :span="10" style="height:68px">
+                <a-col :span="10" style="height:78px">
                   <img :src="item.url" width="100%" height="100%" />
                 </a-col>
-                <a-col :span="14" style="height:68px">
+                <a-col :span="14" style="height:78px;padding:15px">
                   <p class="footInfo">{{item.name}}</p>
                   <p class="footInfo">￥{{item.price}}</p>
                 </a-col>
@@ -95,11 +95,27 @@
         </a-row>
         <a-divider style="margin:3px 0" />
         <a-row>
-          <a-tabs>
-            <a-tab-pane tab="主食" key="mainFood">这是主食的数据</a-tab-pane>
-            <a-tab-pane tab="小食" key="sideFood">这是小食的数据</a-tab-pane>
-            <a-tab-pane tab="饮料" key="drink">这是饮料的数据</a-tab-pane>
-            <a-tab-pane tab="套餐" key="combo">这是套餐的数据</a-tab-pane>
+          <a-tabs @change="tabChange" defaultActiveKey="0">
+            <a-tab-pane v-for="item in foodType" :tab="item.name" :key="item.key+''">
+              <div class="type-food-area">
+                <div
+                  class="type-food-single"
+                  v-for="item in tabFoods"
+                  :key="item.name"
+                  @click="orderFood(item)"
+                >
+                  <a-row>
+                    <a-col :span="10" style="height:78px">
+                      <img :src="item.url" width="100%" height="100%" />
+                    </a-col>
+                    <a-col :span="14" style="height:78px">
+                      <p class="footInfo">{{item.name}}</p>
+                      <p class="footInfo">￥{{item.price}}</p>
+                    </a-col>
+                  </a-row>
+                </div>
+              </div>
+            </a-tab-pane>
           </a-tabs>
         </a-row>
       </a-col>
@@ -108,7 +124,7 @@
 </template>
 
 <script>
-import { addScrollDetail } from "../../axios/api";
+import { queryHotFoods, queryFoodType } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -171,11 +187,8 @@ const takeOutDetailColumns = [
     title: "数量",
     dataIndex: "num",
     align: "center"
-  },
-
-  
+  }
 ];
-
 export default {
   data() {
     return {
@@ -184,45 +197,26 @@ export default {
       takeOutColumns,
       takeOutDetailColumns,
       visible: false,
+      foodType: [
+        //食品种类
+        { name: "主食", key: 0 },
+        { name: "小食", key: 1 },
+        { name: "饮料", key: 2 },
+        { name: "套餐", key: 3 }
+      ],
       tableData: [],
       takeOutData: [],
       contentHeight: this.$store.getters.getHeight - 76,
-      hotFood: [
-        {
-          url: "http://img.91jm.com/2017/07/CB6i1L55920Q.png",
-          name: "汉堡",
-          price: 12
-        },
-        {
-          url:
-            "http://jilin.sinaimg.cn/2013/0622/U8830P1387DT20130622195010.png",
-          name: "可乐",
-          price: 8
-        },
-        {
-          url: "http://img4.jiameng.com/2017/09/N0K85VaZ93q6.jpg",
-          name: "鸡腿",
-          price: 10
-        },
-        {
-          url:
-            "http://pic83.nipic.com/file/20151124/22029572_112739511000_2.jpg",
-          name: "牛肉盖浇",
-          price: 22
-        }
-      ]
+      hotFoods: [], //火热菜品
+      tabFoods: []
     };
   },
   created() {
     this.setPopularColor();
+    this.queryHotFoods();
+    this.queryFoods(0); //初始化查找主食数据
   },
-  mounted() {
-    let type = this.$route.query.type;
-    if (type === "change") {
-      this.isApply = true;
-      this.visible = true;
-    }
-  },
+  mounted() {},
   methods: {
     // 设置火热菜品颜色
     setPopularColor: function() {
@@ -233,6 +227,30 @@ export default {
             .toString(16)
             .padEnd(6, "0");
       }, 1000);
+    },
+    //查询火热菜品
+    queryHotFoods: function() {
+      queryHotFoods({}).then(res => {
+        if (res.code == 200) {
+          this.hotFoods = res.data;
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
+    //分类查询菜品
+    queryFoods: function(type) {
+      queryFoodType({ type: type }).then(res => {
+        if (res.code == 200) {
+          this.tabFoods = res.data;
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
+    //菜品分类切换
+    tabChange(type) {
+      this.queryFoods(type);
     },
     //外卖详情
     takeOutDetail(obj) {
@@ -329,15 +347,21 @@ export default {
 .popular-content {
   height: 400px;
 }
-.hot-food-area {
+.hot-food-area,
+.type-food-area {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   flex-wrap: wrap;
   margin-top: 20px;
 }
-.hot-food-single {
-  width: 140px;
-  height: 70px;
+.type-food-area{
+  margin: 0;
+}
+.hot-food-single,
+.type-food-single {
+  width: 160px;
+  height: 80px;
+  margin:0 0 20px 20px;
   cursor: pointer;
   border: 1px dashed lightblue;
   box-sizing: border-box;

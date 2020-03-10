@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const loginRouter = require('./routers/api/login.js')
+const foodRouter = require('./routers/api/food.js')
 const jwt = require('./public/utils/jwt.js')
 const app = express()
     // app.all('*', (req, res, next) => {
@@ -32,5 +33,5 @@ app.use(function(req, res, next) { //token验证
     }
 });
 app.use('/api/user', loginRouter)
-
+app.use('/api/food', foodRouter)
 app.listen(3000)

@@ -41,8 +41,8 @@ router.post('/login', (req, res) => {
         }
     }).catch(err => {
         res.json({
-            status: 250,
-            message: err
+            code: 250,
+            message: err.code
         })
 
     })
@@ -77,7 +77,7 @@ router.post('/changePassword', (req, res) => {
         }
     }).catch(err => {
         res.json({
-            status: 250,
+            code: 250,
             message: err
         })
 
@@ -108,7 +108,7 @@ router.post('/regUser', (req, res) => {
         }
     }).catch(err => {
         res.json({
-            status: 250,
+            code: 250,
             message: err
         })
 
