@@ -3,5 +3,5 @@
 const express = require('express')
 const jwt = require('jsonwebtoken') //token验证
 const router = express.Router()
-const db = require('../mysql/mysql.js')
-const Response = require('../response/response.js')
+const db = require('../../public/bin/mysql.js')
+const Response = require('../../public/utils/response.js')

@@ -1,11 +1,10 @@
 //登录,注册,修改密码api
 
 const express = require('express')
-const jwt = require('jsonwebtoken') //token验证
 const router = express.Router()
-const db = require('../mysql/mysql.js')
-const Response = require('../response/response.js')
-
+const db = require('../../public/bin/mysql.js')
+const Response = require('../../public/utils/response.js')
+const aboutToken = require('../../public/utils/jwt.js')
 
 // 登录接口
 router.post('/login', (req, res) => {
@@ -21,14 +20,12 @@ router.post('/login', (req, res) => {
                 let content = {
                     name: username
                 }
-                let secretOrPrivateKey = "test" // 这是加密的key（密钥） 
-                let token = jwt.sign(content, secretOrPrivateKey, {
-                    expiresIn: 60 * 60 * 100 // 100小时过期
-                });
+                let token = aboutToken.createToken(content)
                 let obj = {
                     code: 200,
                     message: '登录成功!',
                     data: {
+                        id: result[0].id,
                         username: username,
                         token: token
                     }

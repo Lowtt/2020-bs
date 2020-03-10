@@ -80,7 +80,6 @@ export default {
         password: this.passWord
       }).then(res => {
         if (res.code == 200) {
-          this.$message.success("登录成功!");
           this.$router.push("/index/index");
           sessionStorage.setItem("userInfo", JSON.stringify(res.data));
         } else {
