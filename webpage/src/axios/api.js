@@ -1,7 +1,7 @@
 import request from './request'
 
 
-const baseUrl = "http://192.168.50.4:3000"
+const baseUrl = "http://192.168.10.106:3000"
 
 const requestWrapper = (method, url, params = {}) => {
     return new Promise((resolve, reject) => {
@@ -25,6 +25,9 @@ export const queryHotFoods = params => requestWrapper('post', `${baseUrl}/api/fo
 
 // 菜品分类
 export const queryFoodType = params => requestWrapper('post', `${baseUrl}/api/food/queryFoodsByType`, params)
+
+// 查询配送人员
+export const querySendPerson = params => requestWrapper('post', `${baseUrl}/api/send/querySendPerson`, params)
 
 //个人信息(首页)
 export const userInfo = params => requestWrapper('post', `${baseUrl}/api/user/getCurrentTeacher`, params)

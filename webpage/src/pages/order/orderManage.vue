@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import { queryHotFoods, queryFoodType } from "../../axios/api";
+import { queryHotFoods, queryFoodType,querySendPerson } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -215,9 +215,18 @@ export default {
     this.setPopularColor();
     this.queryHotFoods();
     this.queryFoods(0); //初始化查找主食数据
+    this.querySendPerson();
   },
   mounted() {},
   methods: {
+    //查询配送人员
+    querySendPerson: function() {
+      querySendPerson({}).then(res => {
+        if (res.code == 200) {
+          this.sendPerson = res.data;
+        }
+      });
+    },
     // 设置火热菜品颜色
     setPopularColor: function() {
       setInterval(() => {
@@ -354,14 +363,14 @@ export default {
   flex-wrap: wrap;
   margin-top: 20px;
 }
-.type-food-area{
+.type-food-area {
   margin: 0;
 }
 .hot-food-single,
 .type-food-single {
   width: 160px;
   height: 80px;
-  margin:0 0 20px 20px;
+  margin: 0 0 20px 20px;
   cursor: pointer;
   border: 1px dashed lightblue;
   box-sizing: border-box;

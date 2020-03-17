@@ -3,19 +3,20 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const loginRouter = require('./routers/api/login.js')
 const foodRouter = require('./routers/api/food.js')
+const sendRouter = require('./routers/api/sendPerson.js')
 const jwt = require('./public/utils/jwt.js')
 const app = express()
-    // app.all('*', (req, res, next) => {
-    //     res.header("Access-Control-Allow-Origin", "*");
-    //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    //     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-    //     res.header("X-Powered-By", ' 3.2.1');
-    //     res.header("Content-Type", "application/json;charset=utf-8");
-    //     next();
-    // });
+// app.all('*', (req, res, next) => {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+//     res.header("X-Powered-By", ' 3.2.1');
+//     res.header("Content-Type", "application/json;charset=utf-8");
+//     next();
+// });
 app.use(cors()) //解决跨域
 app.use(bodyParser.json()) //解析表单数据,post:req.body;get:req.query
-app.use(function(req, res, next) { //token验证
+app.use(function (req, res, next) { //token验证
     if (req.url.indexOf('/api/user') == -1) { //去掉登录,注册及修改密码的验证
         let token = req.headers.token;
         let result = jwt.verifyToken(token);
@@ -34,4 +35,5 @@ app.use(function(req, res, next) { //token验证
 });
 app.use('/api/user', loginRouter)
 app.use('/api/food', foodRouter)
+app.use('/api/send', sendRouter)
 app.listen(3000)
