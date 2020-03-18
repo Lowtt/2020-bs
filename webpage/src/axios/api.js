@@ -1,7 +1,7 @@
 import request from './request'
 
 
-const baseUrl = "http://192.168.10.106:3000"
+const baseUrl = "http://localhost:3000"
 
 const requestWrapper = (method, url, params = {}) => {
     return new Promise((resolve, reject) => {
@@ -29,8 +29,8 @@ export const queryFoodType = params => requestWrapper('post', `${baseUrl}/api/fo
 // 查询配送人员
 export const querySendPerson = params => requestWrapper('post', `${baseUrl}/api/send/querySendPerson`, params)
 
-//个人信息(首页)
-export const userInfo = params => requestWrapper('post', `${baseUrl}/api/user/getCurrentTeacher`, params)
+//创建外卖订单
+export const createTakeWay = params => requestWrapper('post', `${baseUrl}/api/send/createTakeWay`, params)
 
 //个人绩分相关(首页)
 export const userScroll = params => requestWrapper('post', `${baseUrl}/api/teacher/home/getInfo`, params)

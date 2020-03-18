@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import { queryHotFoods, queryFoodType,querySendPerson } from "../../axios/api";
+import { queryHotFoods, queryFoodType, querySendPerson,createTakeWay } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -208,7 +208,8 @@ export default {
       takeOutData: [],
       contentHeight: this.$store.getters.getHeight - 76,
       hotFoods: [], //火热菜品
-      tabFoods: []
+      tabFoods: [], //分类菜品
+      sendPerson:[],//配送人员
     };
   },
   created() {
@@ -298,9 +299,8 @@ export default {
     },
     // 外卖触发
     takeOut() {
-      this.takeOutData = this.tableData.concat();
-      this.tableData.length = 0;
-      this.$message.success("操作成功,请在外卖栏进行配送!");
+      console.log(this.tableData.concat());
+      createTakeWay(this.tableData).then(res=>{})
     },
     // 删除触发
     deleteAllFood() {
@@ -309,29 +309,18 @@ export default {
     },
     // 点餐触发
     orderFood(footInfo) {
-      let isNew = true;
-      let order = 0;
-      footInfo.num = 1;
-      this.tableData.map((item, index) => {
-        if (footInfo.name == item.name) {
-          isNew = false;
-          order = index;
+      let length = this.tableData.length;
+      for (let i = 0; i < length; i++) {
+        if (footInfo.id == this.tableData[i].id) {
+          this.tableData[i].num += 1;
+          return;
         }
-      });
-      if (isNew) {
-        this.tableData.push(footInfo);
-      } else {
-        this.tableData[order] = {
-          ...this.tableData[order],
-          num: this.tableData[order].num + 1
-        };
       }
+      footInfo.num = 1;
+      this.tableData.push(footInfo);
     },
     addFood(index) {
-      this.tableData[index] = {
-        ...this.tableData[index],
-        num: this.tableData[index].num + 1
-      };
+      this.tableData[index].num += 1;
     },
     deleteFood(index) {
       if (this.tableData[index].num > 1) {
