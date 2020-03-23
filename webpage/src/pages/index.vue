@@ -22,9 +22,9 @@
             <a-menu-item class="itemBase">
               <router-link to="/order/orderManage">点餐管理</router-link>
             </a-menu-item>
-            <a-menu-item class="itemBase">
+            <!-- <a-menu-item class="itemBase">
               <router-link to="/grade/decRecord">结账管理</router-link>
-            </a-menu-item>
+            </a-menu-item> -->
           </a-sub-menu>
 
           <a-sub-menu class="menuBase">
@@ -33,40 +33,29 @@
               <span>报表管理</span>
             </span>
             <a-menu-item class="itemBase">
-              <router-link to="/teaching/barrier">我的闯关</router-link>
+              <router-link to="/report/sale">营业额度</router-link>
             </a-menu-item>
             <a-menu-item class="itemBase">
-              <router-link to="/teaching/myclass">我的班级</router-link>
-            </a-menu-item>
-            <a-menu-item class="itemBase">
-              <router-link to="/teach/teachPlan">我的教学安排</router-link>
-            </a-menu-item>
-            <a-menu-item class="itemBase">
-              <router-link to="/teaching/leave">请假</router-link>
-            </a-menu-item>
-            <a-menu-item class="itemBase">
-              <router-link to="/teach/teachSummarize">教学总结</router-link>
+              <router-link to="/report/foodSale">菜品销量</router-link>
             </a-menu-item>
           </a-sub-menu>
 
-          <a-menu-item class="itemBase" style="text-align: left" v-on:click="toInfo">
-            <a-icon type="appstore" style="margin-left: 10px" />
-            <span>站内消息</span>
-          </a-menu-item>
-
-          <a-menu-item class="itemBase" style="text-align: left" v-on:click="toNotice">
-            <a-icon type="appstore" style="margin-left: 10px" />
-            <span>学校公告</span>
-          </a-menu-item>
-
-          <a-menu-item class="itemBase" style="text-align: left" v-on:click="toInform">
-            <a-icon type="appstore" style="margin-left: 10px" />
-            <span>我要举报</span>
-          </a-menu-item>
+          <a-sub-menu class="menuBase">
+            <span slot="title">
+              <a-icon type="setting" />
+              <span>系统设置</span>
+            </span>
+            <a-menu-item class="itemBase">
+              <router-link to="/system/addFood">新增菜品</router-link>
+            </a-menu-item>
+            <a-menu-item class="itemBase">
+              <router-link to="/system/userinfo">用户信息</router-link>
+            </a-menu-item>
+          </a-sub-menu>
         </a-menu>
       </a-layout-sider>
 
-      <a-layout-content style="background: white;margin: 68px 8px 8px">
+      <a-layout-content style="background: white;margin: 68px 8px 8px 208px">
         <router-view></router-view>
       </a-layout-content>
     </a-layout>
@@ -100,7 +89,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .ant-layout-header {
   height: 60px;
   background: rgb(49, 154, 247);
@@ -111,15 +100,22 @@ export default {
   width: 100%;
   z-index: 99;
 }
-.ant-layout-sider{
-  background: rgb(33,43,51);
+.ant-layout-sider {
+  background: rgb(33, 43, 51);
   margin-top: 60px;
-  .ant-menu-dark{
-    background: rgb(33,43,51);
+  position: fixed;
+  min-height: 100%;
+  z-index: 90;
+  .ant-menu-dark {
+    background: rgb(33, 43, 51);
   }
 }
 .menuBase {
   min-width: 180px;
   text-align: left;
+  
 }
+.ant-menu-submenu-title {
+    padding-left: 0 !important;
+  }
 </style>
