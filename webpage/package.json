@@ -1,8 +1,8 @@
 {
-    "name": "s-admin",
-    "description": "A Vue.js project",
+    "name": "food-equipment",
+    "description": "毕业设计",
     "version": "1.0.0",
-    "author": "lowt",
+    "author": "wtt",
     "license": "MIT",
     "private": true,
     "scripts": {

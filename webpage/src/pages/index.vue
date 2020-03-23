@@ -66,7 +66,7 @@
         </a-menu>
       </a-layout-sider>
 
-      <a-layout-content style="background: white;margin:8px">
+      <a-layout-content style="background: white;margin: 68px 8px 8px">
         <router-view></router-view>
       </a-layout-content>
     </a-layout>
@@ -107,9 +107,13 @@ export default {
   line-height: 60px;
   padding-left: 20px;
   text-align: start;
+  position: fixed;
+  width: 100%;
+  z-index: 99;
 }
 .ant-layout-sider{
   background: rgb(33,43,51);
+  margin-top: 60px;
   .ant-menu-dark{
     background: rgb(33,43,51);
   }

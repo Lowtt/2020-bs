@@ -34,12 +34,12 @@
                 :pagination="false"
                 bordered
               >
-                <span slot="action" slot-scope="text, record,index">
-                  <a @click="sendFood(record,index)">配送</a>
+                <span slot="action" slot-scope="text, record">
+                  <a @click="sendFood(record)">配送</a>
                   <a-divider type="vertical" />
                   <a @click="takeOutDetail(record)">详情</a>
                   <a-divider type="vertical" />
-                  <a @click="deleteTakeOut(index)">删除</a>
+                  <a @click="deleteTakeOut(record)">删除</a>
                 </span>
               </a-table>
               <a-modal
@@ -124,7 +124,12 @@
 </template>
 
 <script>
-import { queryHotFoods, queryFoodType, querySendPerson,createTakeWay } from "../../axios/api";
+import {
+  queryHotFoods,
+  queryFoodType,
+  querySendPerson,
+  createTakeWay
+} from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -151,8 +156,8 @@ const columns = [
 ];
 const takeOutColumns = [
   {
-    dataIndex: "name",
-    title: "商品名称",
+    title: "创建时间",
+    dataIndex: "createAt",
     align: "center"
   },
   {
@@ -161,11 +166,15 @@ const takeOutColumns = [
     align: "center"
   },
   {
-    title: "创建时间",
-    dataIndex: "createAt",
+    dataIndex: "sendPreson",
+    title: "配送人员",
     align: "center"
   },
-
+  {
+    dataIndex: "tel",
+    title: "联系电话",
+    align: "center"
+  },
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
@@ -209,7 +218,7 @@ export default {
       contentHeight: this.$store.getters.getHeight - 76,
       hotFoods: [], //火热菜品
       tabFoods: [], //分类菜品
-      sendPerson:[],//配送人员
+      sendPerson: [] //配送人员
     };
   },
   created() {
@@ -258,6 +267,12 @@ export default {
         }
       });
     },
+    sendFood(obj) {
+      //外卖配送
+    },
+    deleteTakeOut(obj) {
+      //外卖删除
+    },
     //菜品分类切换
     tabChange(type) {
       this.queryFoods(type);
@@ -300,7 +315,7 @@ export default {
     // 外卖触发
     takeOut() {
       console.log(this.tableData.concat());
-      createTakeWay(this.tableData).then(res=>{})
+      createTakeWay(this.tableData).then(res => {});
     },
     // 删除触发
     deleteAllFood() {

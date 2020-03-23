@@ -381,7 +381,7 @@ export default {
         tooltip: {
           trigger: "axis",
           axisPointer: {
-            type: "cross",
+            // type: "cross",
             label: {
               precision: 0,
               formatter: params => params.value + chartData.tooltipName
@@ -405,6 +405,7 @@ export default {
           name: chartData.xData.name,
           data: chartData.xData.data
         },
+        
         yAxis: {
           type: "value",
           // boundaryGap: [0, "100%"],

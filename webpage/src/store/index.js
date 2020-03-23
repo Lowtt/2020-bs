@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 const state={
-  baseUrl:'http://daduo.natapp1.cc/workers',
+  baseUrl:'http://www.baidu.com',
   isHeight:'',
   routerList:[]
 };
