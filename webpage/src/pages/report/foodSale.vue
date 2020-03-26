@@ -141,7 +141,7 @@ export default {
 
 <style scoped>
 .form-content {
-  display: flex;
+  /* display: flex; */
   margin-top: 10px;
   /* justify-content: space-around; */
 }

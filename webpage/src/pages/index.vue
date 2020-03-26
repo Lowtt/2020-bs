@@ -101,13 +101,16 @@ export default {
   z-index: 99;
 }
 .ant-layout-sider {
-  background: rgb(33, 43, 51);
+  background: rgb(44,52,74);
   margin-top: 60px;
   position: fixed;
   min-height: 100%;
   z-index: 90;
   .ant-menu-dark {
-    background: rgb(33, 43, 51);
+    background: rgb(44,52,74);
+     .ant-menu-item-selected{
+       background: rgb(47,67,89);
+     }
   }
 }
 .menuBase {
