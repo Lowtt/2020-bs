@@ -52,7 +52,7 @@
         <span
           slot="order"
           slot-scope="text, record,index"
-        >{{queryParams.pageNum*queryParams.pageSize+index-1}}</span>
+        >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
         <span slot="total" slot-scope="text,record">{{record.price*record.num}}</span>
       </a-table>
     </a-row>

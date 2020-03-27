@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { queryClass } from "../../axios/api";
+import {  } from "../../axios/api";
 import moment from "moment";
 export default {
   name: "index",
@@ -430,13 +430,6 @@ export default {
         this.$router.push("/grade/decRecord");
       }
     },
-    queryClass() {
-      queryClass({}).then(res => {
-        if (res.code == 0) {
-          this.chooseClass = res.data;
-        }
-      });
-    }
   }
 };
 </script>

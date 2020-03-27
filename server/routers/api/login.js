@@ -13,7 +13,7 @@ router.post('/login', (req, res) => {
         password
     } = req.body
     let sql = 'SELECT * FROM login WHERE username = ?'
-    db.sqlQuery(sql, username).then(result => {
+    db.sqlQuery(sql, [username]).then(result => {
         if (result.length) {
             if (result[0].password == password) {
                 //生成token
@@ -57,7 +57,7 @@ router.post('/changePassword', (req, res) => {
     } = req.body
     let querySql = 'SELECT * FROM login WHERE username = ?'
     let addSql = 'UPDATE login SET password = ? WHERE username = ?'
-    db.sqlQuery(querySql, username).then(result => {
+    db.sqlQuery(querySql, [username]).then(result => {
         if (result.length) {
             if (result[0].password == oldPassword) {
                 db.sqlQuery(addSql, [newPassword, username]).then(() => {
@@ -92,7 +92,7 @@ router.post('/regUser', (req, res) => {
     } = req.body
     let querySql = 'SELECT * FROM login WHERE username = ?'
     let regSql = 'INSERT INTO login (username,password) VALUES (?,?)'
-    db.sqlQuery(querySql, username).then(result => {
+    db.sqlQuery(querySql, [username]).then(result => {
         if (result.length) {
             let response = new Response('该用户已存在!', 250)
             res.json(response)

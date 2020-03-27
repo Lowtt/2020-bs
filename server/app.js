@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const loginRouter = require('./routers/api/login.js')
 const foodRouter = require('./routers/api/food.js')
 const sendRouter = require('./routers/api/send.js')
+const userRouter = require('./routers/api/user.js')
 const jwt = require('./public/utils/jwt.js')
 const app = express()
     // app.all('*', (req, res, next) => {
@@ -21,11 +22,10 @@ app.use(function(req, res, next) { //token验证
         let token = req.headers.token;
         let result = jwt.verifyToken(token);
         if (result == 'err') {
-            res.status(3600)
             res.json({
                 code: 401,
                 message: 'token过期,请重新登录!'
-            })
+            }).status(3600)
         } else {
             next();
         }
@@ -36,4 +36,5 @@ app.use(function(req, res, next) { //token验证
 app.use('/api/user', loginRouter)
 app.use('/api/food', foodRouter)
 app.use('/api/send', sendRouter)
+app.use('/api/system', userRouter)
 app.listen(3000)

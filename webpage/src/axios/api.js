@@ -32,17 +32,17 @@ export const querySendPerson = params => requestWrapper('post', `${baseUrl}/api/
 //创建外卖订单
 export const createTakeWay = params => requestWrapper('post', `${baseUrl}/api/send/createTakeWay`, params)
 
-//个人绩分相关(首页)
-export const userScroll = params => requestWrapper('post', `${baseUrl}/api/teacher/home/getInfo`, params)
+//创建用户
+export const createUser = params => requestWrapper('post', `${baseUrl}/api/system/createUser`, params)
 
-//我的班级(首页)
-export const userClass = params => requestWrapper('post', `${baseUrl}/teacher/myClass/fistMyClass`, params)
+//查询用户
+export const queryUser = params => requestWrapper('post', `${baseUrl}/api/system/queryUser`, params)
 
-//查询班级(下拉框)
-export const queryClass = params => requestWrapper('post', `${baseUrl}/api/user/getClasses`, params)
+//修改用户
+export const updateUser = params => requestWrapper('post', `${baseUrl}/api/system/updateUser`, params)
 
-//个人绩分排名
-export const scrollRanke = params => requestWrapper('post', `${baseUrl}/api/teacher/ranking/getListRank`, params)
+//删除用户
+export const deleteUser = params => requestWrapper('post', `${baseUrl}/api/system/deleteUser`, params)
 
 //部门绩分排名
 export const departmentRanke = params => requestWrapper('post', `${baseUrl}/api/teacher/ranking/getMineAndListRankByDeparmentId`, params)

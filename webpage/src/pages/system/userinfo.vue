@@ -28,8 +28,14 @@
         :dataSource="tableData"
         :pagination="pagination"
         @change="tableChange"
+        :rowKey="record=>record.id"
         bordered
       >
+        <span
+          slot="order"
+          slot-scope="text,obj,index"
+        >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
+
         <span slot="action" slot-scope="text,obj">
           <a @click="update(obj)">修改</a>
           <a-divider type="vertical" />
@@ -49,7 +55,7 @@
             v-decorator="[
                 'userName',
                 {
-                  initialValue:userInfo.userName,
+                  initialValue:userInfo.username,
                   rules: [{
                     required: true,
                     message: '请输入用户名称!'
@@ -64,7 +70,7 @@
             v-decorator="[
                 'passWord',
                 {
-                  initialValue:userInfo.passWord,
+                  initialValue:userInfo.password,
                   rules: [{
                     required: true,
                     message: '请输入用户密码!',
@@ -79,17 +85,8 @@
 </template>
 
 <script>
-import {
-  classDetail,
-  classUp,
-  headData,
-  queryClass,
-  getUpDetail,
-  DownLoade
-} from "../../axios/api";
+import { queryUser, deleteUser, createUser, updateUser } from "../../axios/api";
 import moment from "moment";
-
-// 提成明细
 const columns = [
   {
     key: "order",
@@ -99,9 +96,9 @@ const columns = [
     scopedSlots: { customRender: "order" }
   },
   {
-    key: "userName",
+    key: "username",
     title: "用户名",
-    dataIndex: "userName",
+    dataIndex: "username",
     align: "center"
   },
   {
@@ -140,6 +137,7 @@ export default {
         showQuickJumper: true,
         showSizeChanger: true
       },
+      visible: false,
       modalTitle: "",
       tableData: [],
       userInfo: {}, //用户信息
@@ -155,15 +153,46 @@ export default {
       }
     };
   },
-  created() {},
+  created() {
+    this.queryInitData();
+  },
   methods: {
+    queryInitData() {
+      queryUser(this.queryParams).then(res => {
+        if (res.code == 200) {
+          res.data.data.map(item => {
+            item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
+          });
+          this.tableData = res.data.data;
+          this.pagination = {
+            ...this.pagination,
+            total: res.data.total,
+            pageSize: res.data.pageSize,
+            pageNum: res.data.pageNum,
+            showTotal: () => `共${res.data.total}条`
+          };
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
+    createUser(value) {
+      createUser(value).then(res => {
+        if (res.code == 200) {
+          this.$message.success("新增成功!");
+          this.visible = false;
+          this.userInfo = {};
+          this.queryInitData();
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
     modalCancel() {
       this.visible = false;
       this.userInfo = {};
     },
     tableChange(pag) {
-      const pager = { ...this.pagination };
-      pager.current = pagination.current;
       this.pagination = {
         ...this.pagination,
         pageSize: pag.pageSize,
@@ -174,22 +203,36 @@ export default {
         pageNum: pag.pageNum,
         pageSize: pag.pageSize
       };
+      this.queryInitData()
     },
-    handleRest(){
-      this.form.resetFields()
+    handleRest() {
+      this.form.resetFields();
       this.queryParams = {
-        pageSize:10,
-        pageNum:1
-      }
+        pageSize: 10,
+        pageNum: 1
+      };
+      this.queryInitData();
     },
     modalOk() {
       this.form1.validateFields((err, values) => {
         if (!err) {
-          if (this.userInfo.userName) {
-            // 编辑
+          if (this.userInfo.username) {
+            this.updateUser(values);
           } else {
-            //新增
+            this.createUser(values);
           }
+        }
+      });
+    },
+    updateUser(values) {
+      updateUser({ id: this.userInfo.id, ...values }).then(res => {
+        if (res.code == 200) {
+          this.$message.success("修改成功!");
+          this.userInfo = {};
+          this.visible = false;
+          this.queryInitData();
+        } else {
+          this.$message.error(res.message);
         }
       });
     },
@@ -202,22 +245,31 @@ export default {
       e.preventDefault();
       this.form.validateFields((err, values) => {
         if (!err) {
-          //可能不用表单
+          this.queryParams = {
+            ...this.queryParams,
+            ...values
+          };
+          this.queryInitData();
         }
       });
     },
-    formReset() {
-      this.form.resetFields();
-    },
-
     deleteUser(obj) {
       let _this = this;
       this.$confirm({
-        title: `确定删除 ${obj.userName} 吗?`,
+        title: `确定删除 ${obj.username} 吗?`,
         centered: true,
         okText: "确定",
         cancelText: "取消",
-        onOk() {}
+        onOk() {
+          deleteUser({ id: obj.id }).then(res => {
+            if (res.code == 200) {
+              _this.$message.success("删除成功!");
+              _this.queryInitData();
+            } else {
+              _this.$message.error(res.message);
+            }
+          });
+        }
       });
     },
 
