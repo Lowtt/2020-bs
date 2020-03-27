@@ -1,89 +1,79 @@
 <template>
   <div style="padding:20px">
-    <h2 style="text-align:left;color:rgba(105,105,105,.8)">班级详情</h2>
-    <div class="totalInfo">
-      <a-row class="infoList" style="margin-top:5px">
-        <a-col :span="3">年级:</a-col>
-        <a-col :span="5">{{headDatas.gradeName}}</a-col>
-        <a-col :span="3">班级名称:</a-col>
-        <a-col :span="5">{{headDatas.className}}</a-col>
-        <a-col :span="3">班型:</a-col>
-        <a-col :span="5">{{headDatas.classTypeName}}</a-col>
-      </a-row>
-      <a-row class="infoList" style="margin-top:20px">
-        <a-col :span="3">学生总人数:</a-col>
-        <a-col :span="5">{{headDatas.studentCount}}</a-col>
-        <a-col :span="3">本月总扣课时:</a-col>
-        <a-col :span="5">{{headDatas.teachingCount}}</a-col>
-        <a-col :span="3">本月总提成金额:</a-col>
-        <a-col :span="5">{{headDatas.totalRoyalty}}</a-col>
-      </a-row>
-    </div>
-    <div class="searchBar">
-      <a-Form style="width:100%" :form="form" @submit="formSearch">
-        <a-row>
-          <a-col :span="8">
-            <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="查询时间">
-              <a-date-picker @change="onChangeTime" placeholder="请选择查询时间" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="8" v-if="isClass">
-            <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="班级选择">
-              <a-select placeholder="请选择班级">
-                <a-select-option :value="null">全部</a-select-option>
-                <a-select-option
-                  v-for="item in queryClass"
-                  :value="item.id"
-                  :key="item.id"
-                >{{item.name}}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="8" v:else></a-col>
-          <a-col :span="8" :style="{ textAlign: 'right' }">
-            <a-button type="primary" html-type="submit" @click="getInitData">查询</a-button>
-            <a-button :style="{ marginLeft: '8px' }" @click="formReset">清空</a-button>
-            <a-button :style="{ marginLeft: '8px' }" @click="exportExcel">导出Excel</a-button>
-          </a-col>
-        </a-row>
+    <a-row>
+      <a-Form style="margin-top: 10px;" :form="form" @submit="formSearch">
+        <a-col :span="8">
+          <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="用户名">
+            <a-input placeholder="请输入" v-decorator="[
+                'userName' 
+              ]"></a-input>
+          </a-form-item>
+        </a-col>
+        <a-col :span="8">
+          <a-form-item>
+            <div>
+              <a-button type="primary" html-type="submit">查询</a-button>
+              <a-button @click="handleRest">重置</a-button>
+              <a-button style="margin-left:20px" type="primary" @click="addUser">新增用户</a-button>
+            </div>
+          </a-form-item>
+        </a-col>
       </a-Form>
-    </div>
+    </a-row>
+
+    <a-divider />
     <div class="content">
-      <a-tabs defaultActiveKey="1" @change="tabChange" style="text-align:left">
-        <a-tab-pane tab="课时提成" key="classUp">
-          <a-table
-            :columns="columns"
-            :dataSource="classUpData"
-            bordered
-            :scroll="{ x: columns.length*150 }"
-          >
-            <span slot="action" slot-scope="text,obj">
-              <a @click="checkDetail(obj)">查看</a>
-            </span>
-          </a-table>
-        </a-tab-pane>
-        <a-tab-pane tab="提成明细" key="upDetail">
-          <a-table
-            :columns="columnsUpDetail"
-            :dataSource="upDetailData"
-            :pagination="upDetailPage"
-            @change="tableChange"
-          >
-            <span slot="action" slot-scope="text,obj">
-              <a @click="checkUpDetail(obj)">查看</a>
-            </span>
-          </a-table>
-        </a-tab-pane>
-      </a-tabs>
+      <a-table
+        :columns="columns"
+        :dataSource="tableData"
+        :pagination="pagination"
+        @change="tableChange"
+        bordered
+      >
+        <span slot="action" slot-scope="text,obj">
+          <a @click="update(obj)">修改</a>
+          <a-divider type="vertical" />
+          <a @click="deleteUser(obj)">删除</a>
+        </span>
+      </a-table>
     </div>
-    <a-modal :title="doubleTitle" v-model="visible">
+    <a-modal :title="modalTitle" v-model="visible" :destroyOnClose="true">
       <span slot="footer">
-        <a-button type="primary" @click="modelCancel">关闭</a-button>
+        <a-button type="primary" @click="modalCancel">关闭</a-button>
+        <a-button type="primary" @click="modalOk">确定</a-button>
       </span>
-      <div style="margin-bottom:10px;text-align:right">
-        <a-button @click="exportFn">导出Excel</a-button>
-      </div>
-      <a-table :columns="detailHeader" :dataSource="doubleDeatilData" bordered></a-table>
+      <a-Form style="width:100%" :form="form1">
+        <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="用户名称">
+          <a-input
+            placeholder="请输入用户名称..."
+            v-decorator="[
+                'userName',
+                {
+                  initialValue:userInfo.userName,
+                  rules: [{
+                    required: true,
+                    message: '请输入用户名称!'
+                  }],
+                }
+              ]"
+          />
+        </a-form-item>
+        <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="用户密码">
+          <a-input-password
+            placeholder="请输入用户密码..."
+            v-decorator="[
+                'passWord',
+                {
+                  initialValue:userInfo.passWord,
+                  rules: [{
+                    required: true,
+                    message: '请输入用户密码!',
+                  }],
+                }
+              ]"
+          />
+        </a-form-item>
+      </a-Form>
     </a-modal>
   </div>
 </template>
@@ -98,105 +88,32 @@ import {
   DownLoade
 } from "../../axios/api";
 import moment from "moment";
-const detailHeader = [
-  {
-    key: "createTime",
-    dataIndex: "createTime",
-    title: "时间",
-    align: "center"
-  },
-  {
-    key: "consumeTeachingcount",
-    dataIndex: "consumeTeachingcount",
-    title: "扣减课时",
-    align: "center"
-  },
-  {
-    key: "consumeTeachingmoney",
-    dataIndex: "consumeTeachingmoney",
-    title: "课时费",
-    align: "center"
-  },
-  {
-    key: "surplusTeaching",
-    dataIndex: "surplusTeaching",
-    title: "剩余课量",
-    align: "center"
-  }
-];
+
+// 提成明细
 const columns = [
   {
-    key: "studentName",
-    dataIndex: "studentName",
-    title: "学生姓名",
+    key: "order",
+    dataIndex: "order",
+    title: "序号",
     align: "center",
-    fixed: "left",
-    width: 120
+    scopedSlots: { customRender: "order" }
   },
   {
-    key: "sex",
-    title: "性别",
-    dataIndex: "sex",
+    key: "userName",
+    title: "用户名",
+    dataIndex: "userName",
     align: "center"
   },
   {
-    key: "admissionTime",
-    title: "入学时间",
-    dataIndex: "admissionTime",
+    key: "createAt",
+    title: "创建时间",
+    dataIndex: "createAt",
     align: "center"
   },
   {
-    key: "learningtimeName",
-    title: "学段",
-    dataIndex: "learningtimeName",
-    align: "center"
-  },
-  {
-    key: "gradeName",
-    title: "年级",
-    dataIndex: "gradeName",
-    align: "center"
-  },
-  {
-    key: "className",
-    title: "班级",
-    dataIndex: "className",
-    align: "center"
-  },
-  {
-    key: "onceClassCost",
-    title: "单次课时费",
-    dataIndex: "onceClassCost",
-    align: "center"
-  },
-  {
-    key: "onceClassRoyalty",
-    title: "单次课时提成",
-    dataIndex: "onceClassRoyalty",
-    align: "center"
-  },
-  {
-    key: "deductionHour",
-    title: "已消耗课时",
-    dataIndex: "deductionHour",
-    align: "center"
-  },
-  {
-    key: "classRoyalty",
-    title: "课时提成",
-    dataIndex: "classRoyalty",
-    align: "center"
-  },
-  {
-    key: "surplusHour",
-    title: "剩余课时",
-    dataIndex: "surplusHour",
-    align: "center"
-  },
-  {
-    key: "classHour",
-    title: "总课时",
-    dataIndex: "classHour",
+    key: "updateAt",
+    title: "修改时间",
+    dataIndex: "updateAt",
     align: "center"
   },
   {
@@ -206,69 +123,16 @@ const columns = [
     scopedSlots: { customRender: "action" },
     align: "center",
     fixed: "right",
-    width: 100
-  }
-];
-// 提成明细
-const columnsUpDetail = [
-  {
-    key: "className",
-    dataIndex: "className",
-    title: "时间",
-    align: "center",
-    fixed: "left",
-    width: 120
-  },
-  {
-    key: "gradeName",
-    title: "班级",
-    dataIndex: "gradeName",
-    align: "center"
-  },
-  {
-    key: "learningtimeName",
-    title: "扣取课时费",
-    dataIndex: "learningtimeName",
-    align: "center"
-  },
-  {
-    key: "classTypeName",
-    title: "课时费提成",
-    dataIndex: "classTypeName",
-    align: "center"
-  },
-  {
-    key: "teachingTime",
-    title: "提成比例",
-    dataIndex: "teachingTime",
-    align: "center"
-  },
-  {
-    key: "action",
-    title: "查看",
-    dataIndex: "action",
-    scopedSlots: { customRender: "action" },
-    align: "center",
-    fixed: "right",
-    width: 100
+    width: 150
   }
 ];
 export default {
   data() {
     return {
-      isClass: false, //显示选择班级框
       form: this.$form.createForm(this),
+      form1: this.$form.createForm(this),
       columns,
-      detailHeader,
-      doubleDeatilData: [],
-      visible: false,
-      columnsUpDetail,
-      admissionTime: null,
-      keyword: "classUp",
-      upDetailData: [],
-      doubleTitle: "",
-      exportParam: {},
-      upDetailPage: {
+      pagination: {
         size: "small",
         current: 1,
         pageSize: 10,
@@ -276,119 +140,64 @@ export default {
         showQuickJumper: true,
         showSizeChanger: true
       },
-      queryClass: [],
-      classUpData: [],
-      headDatas: {},
+      modalTitle: "",
+      tableData: [],
+      userInfo: {}, //用户信息
       labelCol: {
         span: 8
       },
       wrapperCol: {
         span: 16
       },
-      upDetailParam: {
-        indexSize: 10,
-        index: 1
+      queryParams: {
+        pageSize: 10,
+        pageNum: 1
       }
     };
   },
-  created() {
-    this.getTotalInfo();
-    this.getInitData();
-    this.getHeadData();
-    this.getClass();
-  },
+  created() {},
   methods: {
-    modelCancel() {
+    modalCancel() {
       this.visible = false;
+      this.userInfo = {};
     },
-    exportFn() {
-      DownLoade("/consumeTeaching/excelList2", this.exportParam).then(res => {
-        let filename = "课时提成明细";
-        let binaryData = [];
-        binaryData.push(res);
-        let url = window.URL.createObjectURL(
-          new Blob(binaryData, { type: "application/zip" })
-        );
-        let link = document.createElement("a");
-        link.style.display = "none";
-        link.href = url;
-        link.setAttribute("download", filename + ".xls");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      });
-    },
-    moment,
-    checkDetail(obj) {
-      let param = {
-        classesId: obj.classId,
-        studentId: obj.studentId
+    tableChange(pag) {
+      const pager = { ...this.pagination };
+      pager.current = pagination.current;
+      this.pagination = {
+        ...this.pagination,
+        pageSize: pag.pageSize,
+        pageNum: pag.pageNum
       };
-      this.exportParam = { ...param };
-      this.doubleTitle = `${obj.studentName}课时扣减明细`;
-      classDetail(param).then(res => {
-        if (res.code == 0) {
-          this.doubleDeatilData = res.data;
-          this.visible = true;
-        }
-      });
-    },
-    tableChange(pageParam) {
-      this.upDetailPage = {
-        ...this.upDetailPage,
-        pageSize: pageParam.pageSize,
-        current: pageParam.current
+      this.queryParams = {
+        ...this.queryParams,
+        pageNum: pag.pageNum,
+        pageSize: pag.pageSize
       };
-      this.upDetailParam = {
-        index: pageParam.current,
-        indexSize: pageParam.pageSize
-      };
-      this.getUpDetail();
     },
-    getTotalInfo() {
-      let id = this.$route.query.classId;
-    },
-    onChangeTime(date, dateString) {
-      this.admissionTime = dateString;
-    },
-    getClass() {
-      queryClass({}).then(res => {
-        if (res.code == 0) {
-          this.queryClass = res.data;
-        }
-      });
-    },
-    getHeadData() {
-      headData({ classId: this.$route.query.classId }).then(res => {
-        if (res.code == 0) {
-          this.headDatas = res.data;
-        }
-      });
-    },
-    exportExcel() {
-      if ((this.keyword = "classUp")) {
-        this.exportApi(
-          "/teacher/myClass/excelListStudentByClassesId",
-          "课时提成"
-        );
-      } else {
-        this.exportApi("/consumeTeaching/excelList", "提成明细");
+    handleRest(){
+      this.form.resetFields()
+      this.queryParams = {
+        pageSize:10,
+        pageNum:1
       }
     },
-    getInitData() {
-      classUp({
-        classId: this.$route.query.classId,
-        admissionTime: this.admissionTime
-      }).then(res => {
-        if (res.code == 0) {
-          this.classUpData = res.data.list;
-          this.headDatas.className = res.data.list[0].className;
-          this.headDatas.classTypeName = res.data.list[0].classTypeName;
-          this.headDatas.gradeName = res.data.list[0].gradeName;
-          this.headDatas.studentCount = res.data.list[0].studentCount;
+    modalOk() {
+      this.form1.validateFields((err, values) => {
+        if (!err) {
+          if (this.userInfo.userName) {
+            // 编辑
+          } else {
+            //新增
+          }
         }
       });
     },
+    addUser() {
+      this.visible = true;
+      this.modalTitle = "新增";
+    },
+
     formSearch(e) {
       e.preventDefault();
       this.form.validateFields((err, values) => {
@@ -400,70 +209,26 @@ export default {
     formReset() {
       this.form.resetFields();
     },
-    tabChange(key) {
-      this.keyword = key;
-      if (key == "upDetail") {
-        this.isClass = true;
-        this.getUpDetail();
-      } else {
-        this.isClass = false;
-      }
-    },
-    checkUpDetail(obj) {
-      //明细详情
-    },
-    getUpDetail() {
-      getUpDetail({
-        ...this.upDetailParam,
-        classId: this.$route.query.classId
-      }).then(res => {
-        if (res.code == 0) {
-          this.upDetailData = res.data.list;
-          this.upDetailPage.showTotal = () => `共${res.data.total}条`;
-        }
+
+    deleteUser(obj) {
+      let _this = this;
+      this.$confirm({
+        title: `确定删除 ${obj.userName} 吗?`,
+        centered: true,
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {}
       });
     },
-    exportApi(url, name) {
-      DownLoade(url, {
-        classId: this.$route.query.classId,
-        admissionTime: this.admissionTime
-      }).then(res => {
-        var filename = name;
-        var binaryData = [];
-        binaryData.push(res);
-        let url = window.URL.createObjectURL(
-          new Blob(binaryData, { type: "application/zip" })
-        );
-        let link = document.createElement("a");
-        link.style.display = "none";
-        link.href = url;
-        link.setAttribute("download", filename + ".xls");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      });
+
+    update(obj) {
+      this.visible = true;
+      this.modalTitle = "编辑";
+      this.userInfo = { ...obj };
     }
   }
 };
 </script>
 
 <style scoped>
-.searchBar {
-  display: flex;
-  flex-direction: row;
-  margin-top: 50px;
-}
-.totalInfo {
-  border: 1px solid rgba(208, 208, 208, 0.5);
-  padding-bottom: 30px;
-  border-radius: 10px;
-}
-.infoList {
-  text-align: left;
-  padding-left: 30px;
-}
-.infoList .ant-col-5,
-.infoList .ant-col-3 {
-  font-size: 16px;
-}
 </style>>

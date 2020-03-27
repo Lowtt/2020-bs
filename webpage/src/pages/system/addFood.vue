@@ -34,30 +34,39 @@
 
     <a-divider />
     <a-row style="margin-top: 20px">
-      <a-table :columns="columns" :dataSource="data" bordered>
+      <a-table
+        :columns="columns"
+        :dataSource="data"
+        bordered
+        :pagination="pagination"
+        @change="tableChange"
+      >
         <span
           slot="order"
           slot-scope="text, obj,index"
         >{{queryParams.pageNum*queryParams.pageSize+index-1}}</span>
         <span slot="typeName" slot-scope="text">{{foodType[text]}}</span>
+        <span slot="url" slot-scope="text">
+          <img :src="text" width="32" height="32" />
+        </span>
       </a-table>
     </a-row>
-    <a-modal v-model="visible" :destroyOnClose='true'>
+    <a-modal v-model="visible" :destroyOnClose="true">
       <p slot="title" class="modalTitle">
         <span>新增菜品</span>
         <span style="font-size:14px;margin-right:20px">操作时间:{{applyTime}}</span>
       </p>
       <span slot="footer">
-        <a-button type="primary" @click="modelOk">关闭</a-button>
-        <a-button type="primary" @click="submit">提交</a-button>
+        <a-button type="primary" @click="modalClose">关闭</a-button>
+        <a-button type="primary" @click="modalOk">提交</a-button>
       </span>
       <div>
         <a-row>
           <a-col span="20">
-            <a-Form style="width:100%" :form="form2" @submit="formSearch">
+            <a-Form style="width:100%" :form="form2">
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="菜品名称">
                 <a-input
-                  placeholder="请选择菜品名称..."
+                  placeholder="请输入菜品名称..."
                   v-decorator="[
                 'num',
                 {
@@ -148,14 +157,10 @@ const columns = [
     scopedSlots: { customRender: "typeName" }
   },
   {
-    title: "审批操作人",
-    dataIndex: "auditor.name",
-    align: "center"
-  },
-  {
-    title: "操作",
-    dataIndex: "tags",
-    align: "center"
+    title: "菜品图片",
+    dataIndex: "url",
+    align: "center",
+    scopedSlots: { customRender: "url" }
   }
 ];
 
@@ -172,7 +177,14 @@ export default {
         { name: "套餐", key: 3 }
       ],
       visible: false,
-
+      pagination: {
+        size: "small",
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        showQuickJumper: true,
+        showSizeChanger: true
+      },
       form1: this.$form.createForm(this),
       form2: this.$form.createForm(this),
       columns,
@@ -181,7 +193,6 @@ export default {
         pageSize: 10
       },
 
-      
       labelCol: {
         span: 6
       },
@@ -190,35 +201,50 @@ export default {
       }
     };
   },
-  mounted() {
-    
-  },
+  mounted() {},
   methods: {
-    formSearch() {},
-    
-    
+    formSearch(e) {
+      e.preventDefault();
+      this.form1.validateFields((err, values) => {
+        if (!err) {
+          //查询
+        }
+      });
+    },
+    tableChange(pag) {
+      const pager = { ...this.pagination };
+      pager.current = pagination.current;
+      this.pagination = {
+        ...this.pagination,
+        pageSize: pag.pageSize,
+        pageNum: pag.pageNum
+      };
+      this.queryParams = {
+        ...this.queryParams,
+        pageNum: pag.pageNum,
+        pageSize: pag.pageSize
+      };
+    },
+    modalOk(e) {
+      e.preventDefault();
+      this.form2.validateFields((err, values) => {
+        if (!err) {
+          //新增
+        }
+      });
+    },
+    //重置
+    handleRest() {
+      this.form1.resetFields();
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10
+      };
+    },
     addFood() {
       this.visible = true;
-      
     },
-    // exportFun() {
-    //   DownLoade("/teacher/leaveApply/excel", { systemState: 2 }).then(res => {
-    //     var filename = "请假名单导出";
-    //     var binaryData = [];
-    //     binaryData.push(res);
-    //     let url = window.URL.createObjectURL(
-    //       new Blob(binaryData, { type: "application/zip" })
-    //     );
-    //     let link = document.createElement("a");
-    //     link.style.display = "none";
-    //     link.href = url;
-    //     link.setAttribute("download", filename + ".xls");
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     link.remove();
-    //   });
-    // },
-    modelOk() {
+    modalClose() {
       this.visible = false;
     }
   }
