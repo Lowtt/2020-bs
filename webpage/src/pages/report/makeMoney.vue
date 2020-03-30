@@ -31,7 +31,7 @@
     <a-divider />
 
     <a-row style="margin-top: 20px">
-      <a-table :columns="columns" :dataSource="data" bordered></a-table>
+      <a-table :columns="columns" :dataSource="data" bordered size="small"></a-table>
     </a-row>
   </div>
 </template>

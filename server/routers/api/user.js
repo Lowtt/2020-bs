@@ -12,20 +12,20 @@ router.post('/queryUser', (req, res) => {
         pageNum,
         pageSize
     } = req.body
-    let querySql = ''
-    if (userName && userName != '') {
-        querySql = `SELECT username,create_at as createAt,user_id as id,password FROM login WHERE username like '%${userName}%' ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
-    } else {
-        querySql = `SELECT username,create_at as createAt,user_id as id,password FROM login ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
-    }
-    let totalSql = 'SELECT FOUND_ROWS() AS TOATL'
+    let querySql = 'SELECT username,create_at as createAt,user_id as id,password FROM login '
+    let totalSql = 'SELECT COUNT(*) as total FROM login '
+    if (userName) {
+        querySql += `WHERE username like '%${userName}%'`
+        totalSql += `WHERE username like '%${userName}%'`
+    } 
+    querySql+=` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
     db.sqlQuery(querySql).then(result => {
         db.sqlQuery(totalSql).then(res1 => {
             let data = {
                 data: result,
                 pageNum: pageNum,
                 pageSize: pageSize,
-                total:res1[0].TOATL
+                total:res1[0].total
             }
             let response = new Response('查询成功!', 200, data)
             res.json(response)

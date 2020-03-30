@@ -26,6 +26,12 @@ export const queryHotFoods = params => requestWrapper('post', `${baseUrl}/api/fo
 // 菜品分类
 export const queryFoodType = params => requestWrapper('post', `${baseUrl}/api/food/queryFoodsByType`, params)
 
+// 菜品分页查询
+export const queryFoodsByPage = params => requestWrapper('post', `${baseUrl}/api/food/queryFoodsByPage`, params)
+
+// 菜品新增
+export const createFood = params => requestWrapper('post', `${baseUrl}/api/food/createFood`, params)
+
 // 查询配送人员
 export const querySendPerson = params => requestWrapper('post', `${baseUrl}/api/send/querySendPerson`, params)
 

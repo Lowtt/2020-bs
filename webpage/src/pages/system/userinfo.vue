@@ -24,11 +24,13 @@
     <a-divider />
     <div class="content">
       <a-table
+      :loading='loading'
         :columns="columns"
         :dataSource="tableData"
         :pagination="pagination"
         @change="tableChange"
         :rowKey="record=>record.id"
+        size="small"
         bordered
       >
         <span
@@ -137,6 +139,7 @@ export default {
         showQuickJumper: true,
         showSizeChanger: true
       },
+      loading:false,
       visible: false,
       modalTitle: "",
       tableData: [],
@@ -158,6 +161,7 @@ export default {
   },
   methods: {
     queryInitData() {
+      this.loading = true
       queryUser(this.queryParams).then(res => {
         if (res.code == 200) {
           res.data.data.map(item => {
@@ -174,6 +178,7 @@ export default {
         } else {
           this.$message.error(res.message);
         }
+        this.loading = false
       });
     },
     createUser(value) {
@@ -196,14 +201,14 @@ export default {
       this.pagination = {
         ...this.pagination,
         pageSize: pag.pageSize,
-        pageNum: pag.pageNum
+        current: pag.current
       };
       this.queryParams = {
         ...this.queryParams,
-        pageNum: pag.pageNum,
+        pageNum: pag.current,
         pageSize: pag.pageSize
       };
-      this.queryInitData()
+      this.queryInitData();
     },
     handleRest() {
       this.form.resetFields();

@@ -18,7 +18,7 @@
         </a-col>
         <a-col :span="6">
           <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="菜品类型">
-            <a-select v-decorator="['type']" placeholder='请选择' allowClear>
+            <a-select v-decorator="['type']" placeholder="请选择" allowClear>
               <a-select-option
                 v-for="item in foodType"
                 :key="item.key"
@@ -48,7 +48,7 @@
     <a-divider />
 
     <a-row style="margin-top: 20px">
-      <a-table :columns="columns" :dataSource="data" bordered>
+      <a-table :columns="columns" :dataSource="data" bordered size="small">
         <span
           slot="order"
           slot-scope="text, record,index"

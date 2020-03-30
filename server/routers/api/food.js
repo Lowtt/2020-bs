@@ -19,6 +19,7 @@ router.post('/queryHotFoods', (req, res) => {
     })
 })
 
+// 根据菜品类型查询
 router.post('/queryFoodsByType', (req, res) => {
     let {
         type
@@ -32,6 +33,82 @@ router.post('/queryFoodsByType', (req, res) => {
             code: 250,
             message: err.code
         })
+    })
+})
+
+//根据页数查找菜品
+router.post('/queryFoodsByPage', (req, res) => {
+    let {
+        name,
+        type,
+        pageNum,
+        pageSize
+    } = req.body
+    let querySql = 'SELECT name,create_at as createAt,id,type,price,url FROM foodInfo '
+    let totalSql = 'SELECT COUNT(*) as total FROM foodInfo '
+    if (name) {
+        querySql += `WHERE name like '%${name}%'`
+        totalSql += `WHERE name like '%${name}%'`
+    } 
+    if(type||type==0){
+        querySql += name?`and type = ${type}`:`WHERE type = ${type}`
+        totalSql += name?`and type = ${type}`:`WHERE type = ${type}`
+    }
+    querySql+=` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
+    db.sqlQuery(querySql).then(result => {
+        db.sqlQuery(totalSql).then(res1 => {
+            let data = {
+                data: result,
+                pageNum: pageNum,
+                pageSize: pageSize,
+                total:res1[0].total
+            }
+            let response = new Response('查询成功!', 200, data)
+            res.json(response)
+        }).catch(err => {
+            res.json({
+                code: 250,
+                message: err.code
+            })
+        })
+    }).catch(err => {
+        res.json({
+            code: 250,
+            message: err
+        })
+    })
+})
+
+// 新增菜品
+router.post('/createFood', (req, res) => {
+    let {
+        name,
+        price,
+        type,
+        url
+    } = req.body
+    let querySql = 'SELECT * FROM foodInfo WHERE name = ?'
+    let regSql = 'INSERT INTO foodInfo (name,price,type,url,num) VALUES (?,?,?,?,1)'
+    db.sqlQuery(querySql, [name]).then(result => {
+        if (result.length) {
+            let response = new Response('该菜品已存在!', 250)
+            res.json(response)
+        } else {
+            db.sqlQuery(regSql, [name, price,type,url]).then(() => {
+                let response = new Response('新增成功!', 200)
+                res.json(response)
+            }).catch(err => {
+                let response = new Response(err, 250)
+                res.json(response)
+            })
+
+        }
+    }).catch(err => {
+        res.json({
+            code: 250,
+            message: err.code
+        })
+
     })
 })
 

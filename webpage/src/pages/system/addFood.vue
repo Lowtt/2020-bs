@@ -36,8 +36,10 @@
     <a-row style="margin-top: 20px">
       <a-table
         :columns="columns"
-        :dataSource="data"
+        :dataSource="tableData"
+        :loading="loading"
         bordered
+        size="small"
         :pagination="pagination"
         @change="tableChange"
       >
@@ -45,7 +47,7 @@
           slot="order"
           slot-scope="text, obj,index"
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
-        <span slot="typeName" slot-scope="text">{{foodType[text]}}</span>
+        <span slot="typeName" slot-scope="text">{{foodType[text].name}}</span>
         <span slot="url" slot-scope="text">
           <img :src="text" width="32" height="32" />
         </span>
@@ -67,8 +69,7 @@
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="菜品名称">
                 <a-input
                   placeholder="请输入菜品名称..."
-                  v-decorator="[
-                'num',
+                  v-decorator="['name',
                 {
                   //initialValue:[applyResult.createTime,applyResult.updateTime],
                   rules: [{
@@ -113,14 +114,7 @@
                 </a-select>
               </a-form-item>
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="图片地址">
-                <a-textarea
-                  placeholder="请输入菜品图片地址..."
-                  autosize
-                  v-decorator="[
-                'url',
-               
-              ]"
-                />
+                <a-textarea placeholder="请输入菜品图片地址..." autosize v-decorator="['url']" />
               </a-form-item>
             </a-Form>
           </a-col>
@@ -131,7 +125,7 @@
 </template>
 
 <script>
-import { leaveList, leaveApply, exportExcel, DownLoade } from "../../axios/api";
+import { queryFoodsByPage, createFood } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -142,12 +136,12 @@ const columns = [
   },
   {
     title: "菜品名称",
-    dataIndex: "leaveTime",
+    dataIndex: "name",
     align: "center"
   },
   {
     title: "单价",
-    dataIndex: "content",
+    dataIndex: "price",
     align: "center"
   },
   {
@@ -167,7 +161,7 @@ const columns = [
 export default {
   data() {
     return {
-      data: [],
+      tableData: [],
       applyTime: new Date().toLocaleString(),
       foodType: [
         //食品种类
@@ -177,6 +171,7 @@ export default {
         { name: "套餐", key: 3 }
       ],
       visible: false,
+      loading: false,
       pagination: {
         size: "small",
         current: 1,
@@ -201,35 +196,69 @@ export default {
       }
     };
   },
-  mounted() {},
+  mounted() {
+    this.queryInitData();
+  },
   methods: {
+    queryInitData() {
+      this.loading = true;
+      queryFoodsByPage(this.queryParams).then(res => {
+        if (res.code == 200) {
+          res.data.data.map(item => {
+            item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
+          });
+          this.tableData = res.data.data;
+          this.pagination = {
+            ...this.pagination,
+            total: res.data.total,
+            pageSize: res.data.pageSize,
+            pageNum: res.data.pageNum,
+            showTotal: () => `共${res.data.total}条`
+          };
+        } else {
+          this.$message.error(res.message);
+        }
+        this.loading = false;
+      });
+    },
     formSearch(e) {
       e.preventDefault();
       this.form1.validateFields((err, values) => {
         if (!err) {
-          //查询
+          this.queryParams = {
+            ...this.queryParams,
+            ...values
+          };
+          this.queryInitData();
         }
       });
     },
     tableChange(pag) {
-      const pager = { ...this.pagination };
-      pager.current = pagination.current;
       this.pagination = {
         ...this.pagination,
         pageSize: pag.pageSize,
-        pageNum: pag.pageNum
+        current: pag.current
       };
       this.queryParams = {
         ...this.queryParams,
-        pageNum: pag.pageNum,
+        pageNum: pag.current,
         pageSize: pag.pageSize
       };
+      this.queryInitData();
     },
     modalOk(e) {
       e.preventDefault();
       this.form2.validateFields((err, values) => {
         if (!err) {
-          //新增
+          createFood(values).then(res => {
+            if (res.code == 200) {
+              this.$message.success("新增成功!");
+              this.visible = false;
+              this.queryInitData();
+            } else {
+              this.$message.error(res.message);
+            }
+          });
         }
       });
     },
@@ -240,6 +269,7 @@ export default {
         pageNum: 1,
         pageSize: 10
       };
+      this.queryInitData();
     },
     addFood() {
       this.visible = true;

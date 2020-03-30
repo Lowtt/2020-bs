@@ -46,7 +46,7 @@
               <span>系统设置</span>
             </span>
             <a-menu-item class="itemBase">
-              <router-link to="/system/addFood">新增菜品</router-link>
+              <router-link to="/system/addFood">菜品管理</router-link>
             </a-menu-item>
             <a-menu-item class="itemBase">
               <router-link to="/system/userinfo">用户信息</router-link>

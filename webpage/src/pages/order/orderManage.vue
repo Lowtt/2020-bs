@@ -9,6 +9,7 @@
                 :columns="columns"
                 :rowKey="record => record.name"
                 :dataSource="tableData"
+                size="small"
                 :pagination="false"
                 bordered
               >
@@ -31,6 +32,7 @@
                 :columns="takeOutColumns"
                 :rowKey="record => record.name"
                 :dataSource="takeOutData"
+                size="small"
                 :pagination="false"
                 bordered
               >
@@ -57,6 +59,7 @@
                   :rowKey="record => record.name"
                   :dataSource="takeOutData"
                   :pagination="false"
+                  size="small"
                   bordered
                 ></a-table>
               </a-modal>
