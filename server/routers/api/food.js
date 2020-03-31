@@ -41,27 +41,33 @@ router.post('/queryFoodsByPage', (req, res) => {
     let {
         name,
         type,
+        startTime,
+        endTime,
         pageNum,
         pageSize
     } = req.body
-    let querySql = 'SELECT name,create_at as createAt,id,type,price,url FROM foodInfo '
+    let querySql = 'SELECT name,create_at as createAt,id,type,price,url,num FROM foodInfo '
     let totalSql = 'SELECT COUNT(*) as total FROM foodInfo '
     if (name) {
         querySql += `WHERE name like '%${name}%'`
         totalSql += `WHERE name like '%${name}%'`
-    } 
-    if(type||type==0){
-        querySql += name?`and type = ${type}`:`WHERE type = ${type}`
-        totalSql += name?`and type = ${type}`:`WHERE type = ${type}`
     }
-    querySql+=` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
+    if (type || type == 0) {
+        querySql += name ? ` and type = ${type}` : `WHERE type = ${type}`
+        totalSql += name ? ` and type = ${type}` : `WHERE type = ${type}`
+    }
+    if (startTime && endTime) {
+        querySql += type || type == 0 || name ? ` and create_at >= "${startTime}" and create_at <= "${endTime}"` : `WHERE create_at >= "${startTime}" and create_at <= "${endTime}"`
+
+    }
+    querySql += ` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
     db.sqlQuery(querySql).then(result => {
         db.sqlQuery(totalSql).then(res1 => {
             let data = {
                 data: result,
                 pageNum: pageNum,
                 pageSize: pageSize,
-                total:res1[0].total
+                total: res1[0].total
             }
             let response = new Response('查询成功!', 200, data)
             res.json(response)
@@ -94,7 +100,7 @@ router.post('/createFood', (req, res) => {
             let response = new Response('该菜品已存在!', 250)
             res.json(response)
         } else {
-            db.sqlQuery(regSql, [name, price,type,url]).then(() => {
+            db.sqlQuery(regSql, [name, price, type, url]).then(() => {
                 let response = new Response('新增成功!', 200)
                 res.json(response)
             }).catch(err => {
