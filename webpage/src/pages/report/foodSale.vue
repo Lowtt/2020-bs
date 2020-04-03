@@ -6,6 +6,7 @@
           <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="月份">
             <a-month-picker
               :disabledDate="disabledDate"
+              :allowClear="false"
               :format="format"
               v-decorator="[
                 'time',

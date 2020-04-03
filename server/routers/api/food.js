@@ -7,7 +7,7 @@ const Response = require('../../public/utils/response.js')
 
 // 查询火热菜品
 router.post('/queryHotFoods', (req, res) => {
-    let sql = 'SELECT * FROM foodInfo ORDER BY num  DESC LIMIT 0,4'
+    let sql = 'SELECT id,name,num,type,price,url FROM food_info ORDER BY num  DESC LIMIT 0,4'
     db.sqlQuery(sql).then(result => {
         let response = new Response('查询成功!', 200, result)
         res.json(response)
@@ -24,7 +24,7 @@ router.post('/queryFoodsByType', (req, res) => {
     let {
         type
     } = req.body
-    let sql = 'SELECT * FROM foodInfo WHERE type = ?'
+    let sql = 'SELECT id,name,num,type,price,url FROM food_info WHERE type = ?'
     db.sqlQuery(sql, [type]).then(result => {
         let response = new Response('查询成功!', 200, result)
         res.json(response)
@@ -46,8 +46,8 @@ router.post('/queryFoodsByPage', (req, res) => {
         pageNum,
         pageSize
     } = req.body
-    let querySql = 'SELECT name,create_at as createAt,id,type,price,url,num FROM foodInfo '
-    let totalSql = 'SELECT COUNT(*) as total FROM foodInfo '
+    let querySql = 'SELECT name,create_at as createAt,id,type,price,url,num FROM food_info '
+    let totalSql = 'SELECT COUNT(*) as total FROM food_info '
     if (name) {
         querySql += `WHERE name like '%${name}%'`
         totalSql += `WHERE name like '%${name}%'`
@@ -58,7 +58,7 @@ router.post('/queryFoodsByPage', (req, res) => {
     }
     if (startTime && endTime) {
         querySql += type || type == 0 || name ? ` and create_at >= "${startTime}" and create_at <= "${endTime}"` : `WHERE create_at >= "${startTime}" and create_at <= "${endTime}"`
-
+        totalSql += type || type == 0 || name ? ` and create_at >= "${startTime}" and create_at <= "${endTime}"` : `WHERE create_at >= "${startTime}" and create_at <= "${endTime}"`
     }
     querySql += ` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
     db.sqlQuery(querySql).then(result => {
@@ -80,7 +80,7 @@ router.post('/queryFoodsByPage', (req, res) => {
     }).catch(err => {
         res.json({
             code: 250,
-            message: err
+            message: err.code
         })
     })
 })
@@ -93,8 +93,8 @@ router.post('/createFood', (req, res) => {
         type,
         url
     } = req.body
-    let querySql = 'SELECT * FROM foodInfo WHERE name = ?'
-    let regSql = 'INSERT INTO foodInfo (name,price,type,url,num) VALUES (?,?,?,?,1)'
+    let querySql = 'SELECT * FROM food_info WHERE name = ?'
+    let regSql = 'INSERT INTO food_info (name,price,type,url) VALUES (?,?,?,?)'
     db.sqlQuery(querySql, [name]).then(result => {
         if (result.length) {
             let response = new Response('该菜品已存在!', 250)
@@ -104,7 +104,7 @@ router.post('/createFood', (req, res) => {
                 let response = new Response('新增成功!', 200)
                 res.json(response)
             }).catch(err => {
-                let response = new Response(err, 250)
+                let response = new Response(err.code, 250)
                 res.json(response)
             })
 

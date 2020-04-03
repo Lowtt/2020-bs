@@ -33,28 +33,51 @@
 </template>
 
 <script>
-import {  } from "../../axios/api";
+import { queryLastHotFoods } from "../../axios/api";
 import moment from "moment";
 export default {
   name: "index",
   data() {
-    return {};
+    return {
+      bestPopular: {
+        startTime: moment(
+          moment()
+            .month(moment().month() - 1)
+            .startOf("month")
+        ).format("YYYY-MM-DD HH:mm:ss"),
+        endTime: moment(
+          moment()
+            .month(moment().month() - 1)
+            .endOf("month")
+        ).format("YYYY-MM-DD HH:mm:ss")
+      }
+    };
   },
   created() {},
   mounted() {
-    this.drawBestPopular();
+    this.queryLastHotFoods();
+    
     this.setOrderNumber();
     this.setFoodClassify();
     this.setIncomeMoney();
   },
   methods: {
+    queryLastHotFoods() {
+      queryLastHotFoods(this.bestPopular).then(res => {
+        if (res.code == 200) {
+this.drawBestPopular(res.data)
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
     // 最受欢迎菜品
-    drawBestPopular: function() {
+    drawBestPopular: function(resultData) {
       let myChart = this.$echarts.init(document.getElementById("bestPopular"));
       // 指定图表的配置项和数据
       let option = {
         title: {
-          text: "一月内最受欢迎菜品",
+          text: "上月菜品销售TOP5",
           left: "center"
         },
         tooltip: {
@@ -64,7 +87,8 @@ export default {
         },
         legend: {
           top: 25,
-          data: ["汉堡", "米饭", "可乐", "鸡腿"]
+          data: resultData[0]
+          // ["汉堡", "米饭", "可乐", "鸡腿"]
         },
         // grid: {
         //   top: 'middle'
@@ -72,7 +96,7 @@ export default {
         series: [
           //系列列表
           {
-            name: "最受欢迎菜品", //系列名称
+            name: "上月菜品销售TOP5", //系列名称
             type: "pie", //类型 pie表示饼图
             center: ["50%", "50%"], //设置饼的原心坐标 不设置就会默认在中心的位置
             radius: [0, "68%"], //饼图的半径,第一项是内半径,第二项是外半径,内半径为0就是真的饼,不是环形
@@ -89,12 +113,13 @@ export default {
                 }
               }
             },
-            data: [
-              { name: "汉堡", value: 20 },
-              { name: "米饭", value: 30 },
-              { name: "可乐", value: 10 },
-              { name: "鸡腿", value: 40 }
-            ]
+            data: resultData[2]
+            // [
+            //   { name: "汉堡", value: 20 },
+            //   { name: "米饭", value: 30 },
+            //   { name: "可乐", value: 10 },
+            //   { name: "鸡腿", value: 40 }
+            // ]
           }
         ]
       };
@@ -139,20 +164,20 @@ export default {
                 }
               ]
             },
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
             data: [
               0,
               0,
@@ -187,7 +212,7 @@ export default {
     // 近一周食品种类成交量
     setFoodClassify: function() {
       let obj = {
-        title: "过去一周食品大类成交量",
+        title: "上周食品大类成交量",
         tooltipName: "(单)",
         legendData: ["主食", "小食", "饮料", "成交总量"],
         xData: {
@@ -208,77 +233,77 @@ export default {
           {
             name: "主食",
             type: "line",
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
             data: [100, 140, 20, 10, 57, 200, 123]
           },
           {
             name: "小食",
             type: "line",
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
             data: [80, 20, 220, 100, 30, 45, 99]
           },
           {
             name: "饮料",
             type: "line",
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
             data: [163, 150, 80, 56, 213, 23, 16]
           },
           {
             name: "成交总量",
             type: "line",
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
             data: [343, 310, 320, 166, 300, 268, 238]
           }
         ]
@@ -323,21 +348,21 @@ export default {
                 }
               ]
             },
-            itemStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            lineStyle: {
-              color:
-                "#" +
-                Math.floor(Math.random() * 0xffffff)
-                  .toString(16)
-                  .padEnd(6, "0")
-            },
-            data: [863, 639, 356, 530, 993, 1004,758]
+            // itemStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            // lineStyle: {
+            //   color:
+            //     "#" +
+            //     Math.floor(Math.random() * 0xffffff)
+            //       .toString(16)
+            //       .padEnd(6, "0")
+            // },
+            data: [863, 639, 356, 530, 993, 1004, 758]
           }
         ]
       };
@@ -405,7 +430,7 @@ export default {
           name: chartData.xData.name,
           data: chartData.xData.data
         },
-        
+
         yAxis: {
           type: "value",
           // boundaryGap: [0, "100%"],
@@ -429,7 +454,7 @@ export default {
       } else {
         this.$router.push("/grade/decRecord");
       }
-    },
+    }
   }
 };
 </script>

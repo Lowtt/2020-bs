@@ -1,8 +1,8 @@
 <template>
   <div style="width: 96%;margin: 0 auto">
     <a-row class="content">
-      <a-col :span="10" class="left-content" :style="{'min-height':contentHeight+'px !important' }">
-        <a-tabs>
+      <a-col :span="12" class="left-content" :style="{'min-height':contentHeight+'px !important' }">
+        <a-tabs @change="leftTableChange">
           <a-tab-pane tab="结账" key="1">
             <div style="padding-right:10px">
               <a-table
@@ -24,6 +24,29 @@
                 <a-button type="dashed" @click="opera('外卖')">外卖</a-button>
                 <a-button type="danger" @click="opera('删除')">删除</a-button>
               </div>
+              <a-modal
+                v-model="sendVisible"
+                title="配送人员"
+                @cancel="sendCancel"
+                @ok="sendOk"
+                centered
+                destroyOnClose
+                style="text-align:center"
+              >
+                <a-select
+                  v-model="sendId"
+                  showSearch
+                  optionFilterProp="children"
+                  :filterOption="filterSendOption"
+                  style="width:80%"
+                >
+                  <a-select-option
+                    v-for="item in sendPerson"
+                    :key="item.id"
+                    :value="item.id"
+                  >{{item.name}}</a-select-option>
+                </a-select>
+              </a-modal>
             </div>
           </a-tab-pane>
           <a-tab-pane tab="外卖" key="2">
@@ -33,21 +56,22 @@
                 :rowKey="record => record.name"
                 :dataSource="takeOutData"
                 size="small"
+                :loading="takeOutLoading"
                 :pagination="false"
                 bordered
               >
                 <span slot="action" slot-scope="text, record">
-                  <a @click="sendFood(record)">配送</a>
+                  <a @click="sendFood(record.id)">配送</a>
                   <a-divider type="vertical" />
-                  <a @click="takeOutDetail(record)">详情</a>
+                  <a @click="takeOutDetail(record.id)">详情</a>
                   <a-divider type="vertical" />
-                  <a @click="deleteTakeOut(record)">删除</a>
+                  <a @click="deleteTakeOut(record.id)">删除</a>
                 </span>
               </a-table>
               <a-modal
                 v-model="visible"
                 title="外卖详情"
-                oncancel="handleCancel"
+                @cancel="handleCancel"
                 centered
                 destroyOnClose
               >
@@ -57,8 +81,9 @@
                 <a-table
                   :columns="takeOutDetailColumns"
                   :rowKey="record => record.name"
-                  :dataSource="takeOutData"
+                  :dataSource="detailOutData"
                   :pagination="false"
+                  :loading='detailLoading'
                   size="small"
                   bordered
                 ></a-table>
@@ -68,7 +93,7 @@
         </a-tabs>
       </a-col>
       <a-col
-        :span="14"
+        :span="12"
         class="right-content"
         :style="{'min-height':contentHeight+'px !important' }"
       >
@@ -85,12 +110,12 @@
               @click="orderFood(item)"
             >
               <a-row>
-                <a-col :span="10" style="height:78px">
+                <a-col :span="10" style="height:73px">
                   <img :src="item.url" width="100%" height="100%" />
                 </a-col>
-                <a-col :span="14" style="height:78px;padding:15px">
+                <a-col :span="14" style="height:73px;padding:15px">
                   <p class="footInfo">{{item.name}}</p>
-                  <p class="footInfo">￥{{item.price}}</p>
+                  <p class="footInfo" style="color:red">￥{{item.price}}</p>
                 </a-col>
               </a-row>
             </div>
@@ -98,7 +123,7 @@
         </a-row>
         <a-divider style="margin:3px 0" />
         <a-row>
-          <a-tabs @change="tabChange" defaultActiveKey="0">
+          <a-tabs @change="rightTabChange" defaultActiveKey="0">
             <a-tab-pane v-for="item in foodType" :tab="item.name" :key="item.key+''">
               <div class="type-food-area">
                 <div
@@ -108,12 +133,12 @@
                   @click="orderFood(item)"
                 >
                   <a-row>
-                    <a-col :span="10" style="height:78px">
+                    <a-col :span="10" style="height:73px">
                       <img :src="item.url" width="100%" height="100%" />
                     </a-col>
-                    <a-col :span="14" style="height:78px">
+                    <a-col :span="14" style="height:73px;padding:15px">
                       <p class="footInfo">{{item.name}}</p>
-                      <p class="footInfo">￥{{item.price}}</p>
+                      <p class="footInfo" style="color:red">￥{{item.price}}</p>
                     </a-col>
                   </a-row>
                 </div>
@@ -131,7 +156,9 @@ import {
   queryHotFoods,
   queryFoodType,
   querySendPerson,
-  createTakeWay
+  createTakeWay,
+  queryTakeWay,
+  deleteTakeWay,takeWayDetail,takeWaySend
 } from "../../axios/api";
 import moment from "moment";
 const columns = [
@@ -169,7 +196,7 @@ const takeOutColumns = [
     align: "center"
   },
   {
-    dataIndex: "sendPreson",
+    dataIndex: "sendName",
     title: "配送人员",
     align: "center"
   },
@@ -181,7 +208,8 @@ const takeOutColumns = [
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
-    align: "center"
+    align: "center",
+    width: 160
   }
 ];
 const takeOutDetailColumns = [
@@ -208,7 +236,11 @@ export default {
       columns,
       takeOutColumns,
       takeOutDetailColumns,
+      detailLoading:false,
       visible: false,
+      sendVisible: false,
+      takeOutLoading: false, //外卖表格loading
+      sendId: null, //配送人员id
       foodType: [
         //食品种类
         { name: "主食", key: 0 },
@@ -216,8 +248,9 @@ export default {
         { name: "饮料", key: 2 },
         { name: "套餐", key: 3 }
       ],
-      tableData: [],
-      takeOutData: [],
+      tableData: [],//点击的菜品数据
+      takeOutData: [],//外卖订单
+      detailOutData:[],//外卖详情数据
       contentHeight: this.$store.getters.getHeight - 76,
       hotFoods: [], //火热菜品
       tabFoods: [], //分类菜品
@@ -232,11 +265,60 @@ export default {
   },
   mounted() {},
   methods: {
+    filterSendOption(input, option) {
+      return (
+        option.componentOptions.children[0].text
+          .toLowerCase()
+          .indexOf(input.toLowerCase()) >= 0
+      );
+    },
+    sendCancel: function() {
+      this.sendVisible = false;
+      this.sendId = this.sendPerson[0].id;
+    },
+    // 生成外卖订单
+    sendOk: function() {
+      let price = 0;
+      this.tableData.map(item => {
+        price += item.num * item.price;
+      });
+      let obj = {
+        sendId: this.sendId,
+        price: price,
+        takewayInfo: this.tableData.concat()
+      };
+      createTakeWay(obj).then(res => {
+        if (res.code == 200) {
+          this.sendVisible = false;
+          this.tableData = [];
+          this.sendId = this.sendPerson[0].id;
+          this.$message.success("外卖订单生成成功,请前往外卖栏配送!");
+        } else {
+          this.$message.error("外卖订单生成失败" + res.message);
+        }
+      });
+    },
+    // 查询所有外卖订单
+    queryAllTakeOut: function() {
+      this.takeOutLoading = true;
+      queryTakeWay({}).then(res => {
+        if (res.code == 200) {
+          res.data.map(item => {
+            item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
+          });
+          this.takeOutData = res.data;
+          this.takeOutLoading = false;
+        } else {
+          this.$message.error("外卖订单查询失败" + res.message);
+        }
+      });
+    },
     //查询配送人员
     querySendPerson: function() {
       querySendPerson({}).then(res => {
         if (res.code == 200) {
           this.sendPerson = res.data;
+          this.sendId = res.data.length && res.data[0].id;
         }
       });
     },
@@ -270,22 +352,74 @@ export default {
         }
       });
     },
-    sendFood(obj) {
+    sendFood(id) {
       //外卖配送
+      let _this = this;
+      this.$confirm({
+        title: `确定要配送该订单吗?`,
+        centered: true,
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {
+          takeWaySend({ id: id }).then(res => {
+            if (res.code == 200) {
+              _this.$message.success("配送成功!");
+              _this.queryAllTakeOut();
+            } else {
+              _this.$message.error(res.message);
+            }
+          });
+        }
+      });
     },
-    deleteTakeOut(obj) {
+    deleteTakeOut(id) {
       //外卖删除
+      let _this = this;
+      this.$confirm({
+        title: `确定要删除该订单吗?`,
+        centered: true,
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {
+          deleteTakeWay({ id: id }).then(res => {
+            if (res.code == 200) {
+              _this.$message.success("删除成功!");
+              _this.queryAllTakeOut();
+            } else {
+              _this.$message.error(res.message);
+            }
+          });
+        }
+      });
     },
     //菜品分类切换
-    tabChange(type) {
+    rightTabChange(type) {
       this.queryFoods(type);
     },
+    leftTableChange(key) {
+      // key==2及跳至外卖页面
+      if (key == 2) {
+        this.queryAllTakeOut();
+      }
+    },
     //外卖详情
-    takeOutDetail(obj) {
+    takeOutDetail(id) {
       this.visible = true;
+      this.queryOutDetail(id)
     },
     handleCancel() {
       this.visible = false;
+    },
+    queryOutDetail(id){
+      this.detailLoading = true
+      takeWayDetail({id:id}).then(res=>{
+        if(res.code==200){
+          this.detailOutData = res.data
+          this.detailLoading = false
+        }else{
+          this.$message.error(res.message)
+        }
+      })
     },
     // 结账,外卖,删除操作
     opera(operaContent) {
@@ -318,7 +452,7 @@ export default {
     // 外卖触发
     takeOut() {
       console.log(this.tableData.concat());
-      createTakeWay(this.tableData).then(res => {});
+      this.sendVisible = true;
     },
     // 删除触发
     deleteAllFood() {
@@ -375,8 +509,8 @@ export default {
 }
 .hot-food-single,
 .type-food-single {
-  width: 160px;
-  height: 80px;
+  width: 150px;
+  height: 75px;
   margin: 0 0 20px 20px;
   cursor: pointer;
   border: 1px dashed lightblue;
