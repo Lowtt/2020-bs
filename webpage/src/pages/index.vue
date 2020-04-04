@@ -2,7 +2,7 @@
   <a-layout>
     <a-layout-header>
       <div style="color: white;font-size:20px">
-        <span>设备资产管理系统</span>
+        <span>xx系统</span>
       </div>
     </a-layout-header>
 

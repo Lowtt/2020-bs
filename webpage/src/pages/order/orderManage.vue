@@ -83,7 +83,7 @@
                   :rowKey="record => record.name"
                   :dataSource="detailOutData"
                   :pagination="false"
-                  :loading='detailLoading'
+                  :loading="detailLoading"
                   size="small"
                   bordered
                 ></a-table>
@@ -158,7 +158,10 @@ import {
   querySendPerson,
   createTakeWay,
   queryTakeWay,
-  deleteTakeWay,takeWayDetail,takeWaySend
+  deleteTakeWay,
+  takeWayDetail,
+  takeWaySend,
+  createOrder
 } from "../../axios/api";
 import moment from "moment";
 const columns = [
@@ -236,7 +239,7 @@ export default {
       columns,
       takeOutColumns,
       takeOutDetailColumns,
-      detailLoading:false,
+      detailLoading: false,
       visible: false,
       sendVisible: false,
       takeOutLoading: false, //外卖表格loading
@@ -248,9 +251,9 @@ export default {
         { name: "饮料", key: 2 },
         { name: "套餐", key: 3 }
       ],
-      tableData: [],//点击的菜品数据
-      takeOutData: [],//外卖订单
-      detailOutData:[],//外卖详情数据
+      tableData: [], //点击的菜品数据
+      takeOutData: [], //外卖订单
+      detailOutData: [], //外卖详情数据
       contentHeight: this.$store.getters.getHeight - 76,
       hotFoods: [], //火热菜品
       tabFoods: [], //分类菜品
@@ -405,21 +408,21 @@ export default {
     //外卖详情
     takeOutDetail(id) {
       this.visible = true;
-      this.queryOutDetail(id)
+      this.queryOutDetail(id);
     },
     handleCancel() {
       this.visible = false;
     },
-    queryOutDetail(id){
-      this.detailLoading = true
-      takeWayDetail({id:id}).then(res=>{
-        if(res.code==200){
-          this.detailOutData = res.data
-          this.detailLoading = false
-        }else{
-          this.$message.error(res.message)
+    queryOutDetail(id) {
+      this.detailLoading = true;
+      takeWayDetail({ id: id }).then(res => {
+        if (res.code == 200) {
+          this.detailOutData = res.data;
+          this.detailLoading = false;
+        } else {
+          this.$message.error(res.message);
         }
-      })
+      });
     },
     // 结账,外卖,删除操作
     opera(operaContent) {
@@ -446,12 +449,21 @@ export default {
       this.tableData.map(item => {
         total += item.num * item.price;
       });
-      this.$message.success(`结账成功,收入${total}元!`);
-      this.tableData.length = 0;
+      let obj = {
+        price: total,
+        orderInfo: this.tableData
+      };
+      createOrder(obj).then(res => {
+        if (res.code == 200) {
+          this.$message.success(`结账成功,收入${total}元!`);
+          this.tableData.length = 0;
+        } else {
+          this.$message.error(res.message);
+        }
+      });
     },
     // 外卖触发
     takeOut() {
-      console.log(this.tableData.concat());
       this.sendVisible = true;
     },
     // 删除触发

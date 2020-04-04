@@ -53,6 +53,9 @@ export const takeWayDetail = params => requestWrapper('post', `${baseUrl}/api/se
 //外卖订单配送
 export const takeWaySend = params => requestWrapper('post', `${baseUrl}/api/send/takeOutSend`, params)
 
+//结账
+export const createOrder = params => requestWrapper('post', `${baseUrl}/api/order/createOrderList`, params)
+
 //创建用户
 export const createUser = params => requestWrapper('post', `${baseUrl}/api/system/createUser`, params)
 
