@@ -40,23 +40,18 @@ export default {
   data() {
     return {
       bestPopular: {
-        startTime: moment(
-          moment()
-            .month(moment().month() - 1)
-            .startOf("month")
-        ).format("YYYY-MM-DD HH:mm:ss"),
-        endTime: moment(
-          moment()
-            .month(moment().month() - 1)
-            .endOf("month")
-        ).format("YYYY-MM-DD HH:mm:ss")
+        date: moment().subtract(1, "M").format("YYYY-MM")
       }
     };
   },
   created() {},
   mounted() {
+    var weekOfday = moment().format('E');//计算今天是这周第几天
+var last_monday = moment().subtract(6,'days').format('YYYY/MM/DD');//周一日期
+var last_sunday = moment().subtract(weekOfday, 'days').format('YYYY/MM/DD');//周日日期
+console.log(weekOfday,last_monday,last_sunday)
     this.queryLastHotFoods();
-    
+
     this.setOrderNumber();
     this.setFoodClassify();
     this.setIncomeMoney();
@@ -65,7 +60,7 @@ export default {
     queryLastHotFoods() {
       queryLastHotFoods(this.bestPopular).then(res => {
         if (res.code == 200) {
-this.drawBestPopular(res.data)
+          this.drawBestPopular(res.data);
         } else {
           this.$message.error(res.message);
         }
@@ -212,7 +207,7 @@ this.drawBestPopular(res.data)
     // 近一周食品种类成交量
     setFoodClassify: function() {
       let obj = {
-        title: "上周食品大类成交量",
+        title: "过去7天食品种类成交量",
         tooltipName: "(单)",
         legendData: ["主食", "小食", "饮料", "成交总量"],
         xData: {
@@ -444,16 +439,6 @@ this.drawBestPopular(res.data)
         series: chartData.seriesData
       };
       myChart.setOption(option);
-    },
-
-    toRecord(val) {
-      if (val === "add") {
-        this.$router.push("/grade/incRecord");
-      } else if (val === "change") {
-        this.$router.push("/grade/incRecord?type=change");
-      } else {
-        this.$router.push("/grade/decRecord");
-      }
     }
   }
 };
