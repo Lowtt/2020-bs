@@ -31,7 +31,13 @@
     <a-divider />
 
     <a-row style="margin-top: 20px">
-      <a-table :columns="columns" :dataSource="data" bordered size="small"></a-table>
+      <a-table
+        :columns="columns"
+        :dataSource="data"
+        bordered
+        :rowKey="record=>record.id"
+        size="small"
+      ></a-table>
     </a-row>
   </div>
 </template>
@@ -115,7 +121,7 @@ export default {
 </script>
 
 <style scoped>
-.form-content{
+.form-content {
   margin-top: 10px;
 }
 </style>

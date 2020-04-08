@@ -52,6 +52,7 @@
       <a-table
         :columns="columns"
         :dataSource="tableData"
+        :rowKey="record=>record.id"
         bordered
         @change="tableChange"
         size="small"

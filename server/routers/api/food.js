@@ -36,6 +36,9 @@ router.post('/queryFoodsByType', (req, res) => {
     })
 })
 
+function createSql(param,startTime,endTime){
+    retrun ` ${param} create_at >= "${startTime}" and create_at <= "${endTime}"`
+}
 //根据页数查找菜品
 router.post('/queryFoodsByPage', (req, res) => {
     let {
@@ -57,8 +60,9 @@ router.post('/queryFoodsByPage', (req, res) => {
         totalSql += name ? ` and type = ${type}` : `WHERE type = ${type}`
     }
     if (startTime && endTime) {
-        querySql += type || type == 0 || name ? ` and create_at >= "${startTime}" and create_at <= "${endTime}"` : `WHERE create_at >= "${startTime}" and create_at <= "${endTime}"`
-        totalSql += type || type == 0 || name ? ` and create_at >= "${startTime}" and create_at <= "${endTime}"` : `WHERE create_at >= "${startTime}" and create_at <= "${endTime}"`
+        
+        querySql += type || type == 0 || name ? createSql('and',startTime,endTime): createSql('WHERE',startTime,endTime)
+        totalSql += type || type == 0 || name ? createSql('and',startTime,endTime): createSql('WHERE',startTime,endTime)
     }
     querySql += ` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
     db.sqlQuery(querySql).then(result => {

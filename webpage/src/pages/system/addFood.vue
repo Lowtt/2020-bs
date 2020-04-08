@@ -39,6 +39,7 @@
         :dataSource="tableData"
         :loading="loading"
         bordered
+        :rowKey="record=>record.id"
         size="small"
         :pagination="pagination"
         @change="tableChange"
