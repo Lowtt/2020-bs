@@ -33,7 +33,8 @@
     <a-row style="margin-top: 20px">
       <a-table
         :columns="columns"
-        :dataSource="data"
+        :dataSource="tableData"
+        :loading="loading"
         bordered
         :rowKey="record=>record.id"
         size="small"
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-import { messagelistPage, messageDetail } from "../../axios/api";
+import { queryMakeMoney } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -76,7 +77,8 @@ const columns = [
 export default {
   data() {
     return {
-      data: [],
+      tableData: [],
+      loading: false,
       columns,
       initDate: moment(
         moment()
@@ -84,6 +86,7 @@ export default {
           .format("YYYY-MM"),
         "YYYY-MM"
       ),
+      // initDate: moment(moment().format("YYYY-MM"), "YYYY-MM"),
       format: "YYYY-MM",
       form: this.$form.createForm(this),
       labelCol: {
@@ -91,10 +94,20 @@ export default {
       },
       wrapperCol: {
         span: 18
+      },
+      queryParams: {
+        startTime: moment(moment().startOf("month"))
+          .subtract(1, "M")
+          .format("YYYY-MM"),
+        endTime: moment(moment().endOf("month"))
+          .subtract(1, "M")
+          .format("YYYY-MM")
       }
     };
   },
-  mounted() {},
+  mounted() {
+    this.queryInitData();
+  },
   methods: {
     disabledDate(current) {
       return current && current > moment().endOf("M");
@@ -103,7 +116,27 @@ export default {
       e.preventDefault();
       this.form.validateFields((err, values) => {
         if (!err) {
-          //查询
+          if (values.time) {
+            values.startTime = moment(values.time)
+              .startOf("month")
+              .format("YYYY-MM-DD");
+            values.endTime = moment(values.time)
+              .endOf("month")
+              .format("YYYY-MM-DD");
+            delete values.time;
+          } else {
+            values.startTime = moment(moment().startOf("month"))
+              .subtract(1, "M")
+              .format("YYYY-MM-DD");
+            values.endTime = moment(moment().endOf("month"))
+              .subtract(1, "M")
+              .format("YYYY-MM-DD");
+          }
+          this.queryParams = {
+            ...this.queryParams,
+            ...values
+          };
+          this.queryInitData();
         }
       });
     },
@@ -111,10 +144,27 @@ export default {
     handleRest() {
       this.form.resetFields();
       this.queryParams = {
-        time: moment()
+        pageSize: 10,
+        pageNum: 1,
+        startTime: moment(moment().startOf("month"))
           .subtract(1, "M")
-          .format("YYYY-MM")
+          .format("YYYY-MM-DD"),
+        endTime: moment(moment().endOf("month"))
+          .subtract(1, "M")
+          .format("YYYY-MM-DD")
       };
+      this.queryInitData();
+    },
+    queryInitData() {
+      this.loading = true;
+      queryMakeMoney(this.queryParams).then(res => {
+        if (res.code == 200) {
+          this.tableData = res.data.data;
+        } else {
+          this.$message.error(res.message);
+        }
+        this.loading = false;
+      });
     }
   }
 };

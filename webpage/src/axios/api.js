@@ -56,6 +56,12 @@ export const takeWaySend = params => requestWrapper('post', `${baseUrl}/api/send
 //结账
 export const createOrder = params => requestWrapper('post', `${baseUrl}/api/order/createOrderList`, params)
 
+//查询月销量
+export const queryMakeMoney = params => requestWrapper('post', `${baseUrl}/api/report/queryMakeMoney`, params)
+
+//查询食品销量
+export const queryFoodSell = params => requestWrapper('post', `${baseUrl}/api/report/queryFoodSellByPage`, params)
+
 //创建用户
 export const createUser = params => requestWrapper('post', `${baseUrl}/api/system/createUser`, params)
 

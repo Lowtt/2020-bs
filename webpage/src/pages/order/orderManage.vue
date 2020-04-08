@@ -364,14 +364,16 @@ export default {
         okText: "确定",
         cancelText: "取消",
         onOk() {
-          takeWaySend({ id: id }).then(res => {
-            if (res.code == 200) {
-              _this.$message.success("配送成功!");
-              _this.queryAllTakeOut();
-            } else {
-              _this.$message.error(res.message);
+          takeWaySend({ id: id, createAt: moment().format("YYYY-MM-DD") }).then(
+            res => {
+              if (res.code == 200) {
+                _this.$message.success("配送成功!");
+                _this.queryAllTakeOut();
+              } else {
+                _this.$message.error(res.message);
+              }
             }
-          });
+          );
         }
       });
     },
@@ -451,6 +453,7 @@ export default {
       });
       let obj = {
         price: total,
+        createAt: moment().format("YYYY-MM-DD"),
         orderInfo: this.tableData
       };
       createOrder(obj).then(res => {

@@ -7,6 +7,7 @@ const sendRouter = require('./routers/api/send.js')
 const userRouter = require('./routers/api/user.js')
 const chartRouter = require('./routers/api/chart.js')
 const orderRouter = require('./routers/api/order.js')
+const reportRouter = require('./routers/api/report.js')
 const jwt = require('./public/utils/jwt.js')
 const app = express()
     // app.all('*', (req, res, next) => {
@@ -24,10 +25,12 @@ app.use(function(req, res, next) { //token验证
         let token = req.headers.token;
         let result = jwt.verifyToken(token);
         if (result == 'err') {
+            // res.status(401)
             res.json({
                 code: 401,
                 message: 'token过期,请重新登录!'
-            }).status(3600)
+            })
+            
         } else {
             next();
         }
@@ -41,4 +44,5 @@ app.use('/api/send', sendRouter)
 app.use('/api/system', userRouter)
 app.use('/api/chart', chartRouter)
 app.use('/api/order', orderRouter)
+app.use('/api/report', reportRouter)
 app.listen(3000)

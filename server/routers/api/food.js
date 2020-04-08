@@ -37,7 +37,7 @@ router.post('/queryFoodsByType', (req, res) => {
 })
 
 function createSql(param,startTime,endTime){
-    retrun ` ${param} create_at >= "${startTime}" and create_at <= "${endTime}"`
+    return ` ${param} create_at >= "${startTime}" and create_at <= "${endTime}"`
 }
 //根据页数查找菜品
 router.post('/queryFoodsByPage', (req, res) => {

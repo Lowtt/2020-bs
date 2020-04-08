@@ -63,14 +63,15 @@
           slot="order"
           slot-scope="text, record,index"
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
-        <span slot="total" slot-scope="text,record">{{record.price*record.num}}</span>
+        <span slot="total" slot-scope="text,record">{{record.price*record.totalNum}}</span>
+         <span slot="type" slot-scope="text">{{foodType[text].name}}</span>
       </a-table>
     </a-row>
   </div>
 </template>
 
 <script>
-import { queryFoodsByPage } from "../../axios/api";
+import { queryFoodSell } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -85,18 +86,24 @@ const columns = [
     align: "center"
   },
   {
+    title: "菜品类型",
+    dataIndex: "type",
+    align: "center",
+    scopedSlots: { customRender: "type" }
+  },
+  {
     title: "单价(元)",
     dataIndex: "price",
     align: "center"
   },
   {
     title: "卖出份数",
-    dataIndex: "num",
+    dataIndex: "totalNum",
     align: "center"
   },
   {
     title: "营业额(元)",
-    dataIndex: "total",
+    dataIndex: "totalmoney",
     align: "center",
     scopedSlots: { customRender: "total" }
   }
@@ -203,7 +210,7 @@ export default {
     },
     queryInitData() {
       this.loading = true;
-      queryFoodsByPage(this.queryParams).then(res => {
+      queryFoodSell(this.queryParams).then(res => {
         if (res.code == 200) {
           res.data.data.map(item => {
             item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");

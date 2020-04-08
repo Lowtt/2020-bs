@@ -9,16 +9,17 @@ const Response = require('../../public/utils/response.js')
 router.post('/createOrderList', (req, res) => {
     let {
         price,
+        createAt,
         orderInfo
     } = req.body
-    let inSql = 'INSERT INTO sell (sell_type,total_money) VALUES (0,?)'
+    let inSql = 'INSERT INTO sell (sell_type,total_money,create_at) VALUES (0,?,?)'
     let newListSql = 'SELECT MAX(id) as newId FROM sell'
-    let addInfoSql = 'INSERT INTO sell_info (sell_id,price,num,name) VALUES (?,?,?,?)'
-    db.sqlQuery(inSql, [price]).then(() => {
+    let addInfoSql = 'INSERT INTO sell_info (sell_id,price,num,name,type) VALUES (?,?,?,?,?)'
+    db.sqlQuery(inSql, [price,createAt]).then(() => {
         db.sqlQuery(newListSql).then(result => {
             let newId = result[0].newId
             orderInfo.map((item, index) => {
-                db.sqlQuery(addInfoSql, [newId, item.price, item.num, item.name]).then(() => {
+                db.sqlQuery(addInfoSql, [newId, item.price, item.num, item.name,item.type]).then(() => {
                     if (index == orderInfo.length - 1) {
                         let response = new Response('结账成功!', 200)
                         res.json(response)
