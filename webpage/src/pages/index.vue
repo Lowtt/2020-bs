@@ -49,6 +49,9 @@
               <router-link to="/system/addFood">菜品管理</router-link>
             </a-menu-item>
             <a-menu-item class="itemBase">
+              <router-link to="/system/sendPreson">配送人员</router-link>
+            </a-menu-item>
+            <a-menu-item class="itemBase">
               <router-link to="/system/userinfo">用户信息</router-link>
             </a-menu-item>
           </a-sub-menu>

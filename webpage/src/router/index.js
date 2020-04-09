@@ -81,7 +81,14 @@ export default new Router({
         path: '/system/addFood',
         component: () =>
           import('../pages/system/addFood')
-      }, {
+      }, 
+      {
+        name: '配送人员',
+        path: '/system/sendPreson',
+        component: () =>
+          import('../pages/system/sendPreson')
+      }, 
+      {
         name: '用户信息',
         path: '/system/userinfo',
         component: () =>
