@@ -36,9 +36,12 @@
         :dataSource="tableData"
         :loading="loading"
         bordered
+        :pagination="false"
         :rowKey="record=>record.id"
         size="small"
-      ></a-table>
+      >
+        <span slot="total" slot-scope="text, obj">{{obj.inMoney+obj.outMoney}}</span>
+      </a-table>
     </a-row>
   </div>
 </template>
@@ -48,29 +51,25 @@ import { queryMakeMoney } from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
-    dataIndex: "createTime",
-    title: "序号",
-    align: "center"
-  },
-  {
     title: "日期",
-    dataIndex: "time",
+    dataIndex: "createAt",
     align: "center"
   },
   {
-    title: "外卖",
-    dataIndex: "takeout",
+    title: "外卖结账",
+    dataIndex: "outMoney",
     align: "center"
   },
   {
-    title: "现场",
-    dataIndex: "tags",
+    title: "现场结账",
+    dataIndex: "inMoney",
     align: "center"
   },
   {
     title: "营业额",
     dataIndex: "total",
-    align: "center"
+    align: "center",
+    scopedSlots: { customRender: "total" }
   }
 ];
 
@@ -132,10 +131,7 @@ export default {
               .subtract(1, "M")
               .format("YYYY-MM-DD");
           }
-          this.queryParams = {
-            ...this.queryParams,
-            ...values
-          };
+          this.queryParams = values;
           this.queryInitData();
         }
       });
@@ -144,8 +140,6 @@ export default {
     handleRest() {
       this.form.resetFields();
       this.queryParams = {
-        pageSize: 10,
-        pageNum: 1,
         startTime: moment(moment().startOf("month"))
           .subtract(1, "M")
           .format("YYYY-MM-DD"),
@@ -159,7 +153,10 @@ export default {
       this.loading = true;
       queryMakeMoney(this.queryParams).then(res => {
         if (res.code == 200) {
-          this.tableData = res.data.data;
+          res.data.map(item => {
+            item.createAt = moment(item.createAt).format("YYYY-MM-DD");
+          });
+          this.tableData = res.data;
         } else {
           this.$message.error(res.message);
         }

@@ -62,27 +62,39 @@ router.post('/queryFoodSellByPage', (req, res) => {
 })
 
 // 营业额
-///////?????????????????????????????????????????????????????????????????????????
 
 router.post('/queryMakeMoney', (req, res) => {
     let {
-
         startTime,
-        endTime,
-
+        endTime
     } = req.body
-    let oneSql = `SELECT total_money as totalMoney,create_at as createAt,sell_type as sellType FROM sell ${createSql('WHERE',startTime,endTime,'create_at')}`
-    let querySql = `SELECT sellType,createAt,sum(totalMoney) FROM (${oneSql}) as aaaa ORDER BY createAt DESC`
-console.log(oneSql)
-    db.sqlQuery(oneSql).then(result => {
-
+    let sql = "SELECT sum(total_money) as totalMoney,sell_type as sellType,create_at as createAt FROM sell where create_at >=? and create_at <=? GROUP BY sell_type,create_at"
+    db.sqlQuery(sql, [startTime, endTime]).then(result => {
+        for (let i = 0; i < result.length; i++) {
+            let obj = {
+                createAt: result[i].createAt,
+                outMoney: result[i].sellType ? result[i].totalMoney : 0,
+                inMoney: result[i].sellType ? 0 : result[i].totalMoney
+            }
+            result[i] = obj
+        }
+        for (let i = 0; i < result.length; i++) {
+            for (let j = i + 1; j < result.length; j++) {
+                if (result[i].createAt + '' == result[j].createAt + '') {
+                    result[i].outMoney += result[j].outMoney
+                    result[i].inMoney += result[j].inMoney
+                    result.splice(j, 1)
+                    j--
+                }
+            }
+        }
         let response = new Response('查询成功!', 200, result)
         res.json(response)
 
     }).catch(err => {
         res.json({
             code: 250,
-            message: err
+            message: err.code
         })
     })
 })
