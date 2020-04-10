@@ -35,8 +35,20 @@ export const queryFoodsByPage = params => requestWrapper('post', `${baseUrl}/api
 // 菜品新增
 export const createFood = params => requestWrapper('post', `${baseUrl}/api/food/createFood`, params)
 
-// 查询配送人员
+// 查询配送人员(所有)
 export const querySendPerson = params => requestWrapper('post', `${baseUrl}/api/send/querySendPerson`, params)
+
+// 查询配送人员(分页)
+export const queryPersonByPage = params => requestWrapper('post', `${baseUrl}/api/send/queryPersonByPage`, params)
+
+// 创建配送人员
+export const createPerson = params => requestWrapper('post', `${baseUrl}/api/send/createPerson`, params)
+
+// 修改配送人员
+export const updatePerson = params => requestWrapper('post', `${baseUrl}/api/send/updatePerson`, params)
+
+// 删除配送人员
+export const deletePerson = params => requestWrapper('post', `${baseUrl}/api/send/deletePerson`, params)
 
 //创建外卖订单
 export const createTakeWay = params => requestWrapper('post', `${baseUrl}/api/send/createTakeWay`, params)

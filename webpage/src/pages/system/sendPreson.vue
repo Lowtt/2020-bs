@@ -38,8 +38,9 @@
           slot-scope="text, obj,index"
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
         <span slot="opera" slot-scope="text,obj">
-          <a-button type="primary" @click="updatePreson(obj)">修改</a-button>
-          <a-button type="primary" @click="deletePreson(obj)">删除</a-button>
+          <a @click="updateSendPerson(obj)">修改</a>
+          <a-divider type="vertical" />
+          <a @click="deleteSendPerson(obj)">删除</a>
         </span>
       </a-table>
     </a-row>
@@ -95,7 +96,12 @@
 </template>
 
 <script>
-import { queryFoodsByPage, createFood } from "../../axios/api";
+import {
+  queryPersonByPage,
+  createPerson,
+  updatePerson,
+  deletePerson
+} from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -126,7 +132,7 @@ const columns = [
   },
   {
     title: "操作",
-    dataIndex: "updateAt",
+    dataIndex: "opera",
     align: "center",
     scopedSlots: { customRender: "opera" }
   }
@@ -171,7 +177,7 @@ export default {
   methods: {
     queryInitData() {
       this.loading = true;
-      queryFoodsByPage(this.queryParams).then(res => {
+      queryPersonByPage(this.queryParams).then(res => {
         if (res.code == 200) {
           res.data.data.map(item => {
             item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
@@ -189,6 +195,25 @@ export default {
           this.$message.error(res.message);
         }
         this.loading = false;
+      });
+    },
+    deleteSendPerson(obj) {
+      let _this = this;
+      this.$confirm({
+        title: `确定删除 ${obj.name} 吗?`,
+        centered: true,
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {
+          deletePerson({ id: obj.id }).then(res => {
+            if (res.code == 200) {
+              _this.$message.success("删除成功!");
+              _this.queryInitData();
+            } else {
+              _this.$message.error(res.message);
+            }
+          });
+        }
       });
     },
     formSearch(e) {
@@ -216,7 +241,7 @@ export default {
       };
       this.queryInitData();
     },
-    updatePreson(obj) {
+    updateSendPerson(obj) {
       this.personInfo = obj;
       this.visible = true;
       this.modalTitle = "修改人员";
@@ -227,8 +252,18 @@ export default {
         if (!err) {
           if (this.personInfo.id) {
             //修改
+            updatePerson({ ...values, id: this.personInfo.id }).then(res => {
+              if (res.code == 200) {
+                this.$message.success("修改成功!");
+                this.visible = false;
+                this.personInfo = {};
+                this.queryInitData();
+              } else {
+                this.$message.error(res.message);
+              }
+            });
           } else {
-            createFood(values).then(res => {
+            createPerson(values).then(res => {
               if (res.code == 200) {
                 this.$message.success("新增成功!");
                 this.visible = false;
