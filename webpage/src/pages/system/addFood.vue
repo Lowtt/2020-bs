@@ -1,4 +1,5 @@
 <template>
+  <!-- 新增食品页面 -->
   <div style="width: 96%;margin: 0 auto">
     <a-row>
       <a-Form style="margin-top: 10px;" :form="form1" @submit="formSearch">
@@ -86,10 +87,8 @@
                   placeholder="请输入菜品单价..."
                   :min="1"
                   style="width:100%"
-                  v-decorator="[
-                'price',
+                  v-decorator="['price',
                 {
-                  //initialValue:applyResult.content,
                   rules: [{
                     required: true,
                     message: '请输入菜品单价!',
@@ -201,6 +200,7 @@ export default {
     this.queryInitData();
   },
   methods: {
+    // 获取页面数据
     queryInitData() {
       this.loading = true;
       queryFoodsByPage(this.queryParams).then(res => {
@@ -222,6 +222,7 @@ export default {
         this.loading = false;
       });
     },
+    // 表格搜索框调用
     formSearch(e) {
       e.preventDefault();
       this.form1.validateFields((err, values) => {
@@ -234,6 +235,7 @@ export default {
         }
       });
     },
+    // 表格页码,条数改动时触发
     tableChange(pag) {
       this.pagination = {
         ...this.pagination,
@@ -247,6 +249,7 @@ export default {
       };
       this.queryInitData();
     },
+    // 新增菜品确定时调用
     modalOk(e) {
       e.preventDefault();
       this.form2.validateFields((err, values) => {

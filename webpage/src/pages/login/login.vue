@@ -58,9 +58,9 @@ export default {
     };
   },
   created() {},
-  beforeMount() {
-    let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-    if (userInfo && userInfo.token) {
+  beforeMount() {//挂载之前调用
+    let userInfo = JSON.parse(sessionStorage.getItem("userInfo"));//获取用户姓名
+    if (userInfo && userInfo.token) {//如果用户存在并且token存在,跳至图表页
       this.$router.push("/index/index");
     }
   },
@@ -85,9 +85,9 @@ export default {
         username: this.userName,
         password: this.passWord
       }).then(res => {
-        if (res.code == 200) {
+        if (res.code == 200) {//登录成功
           this.$router.push("/index/index");
-          sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+          sessionStorage.setItem("userInfo", JSON.stringify(res.data));//将登录信息存在storage
         } else {
           this.$message.error(res.message);
         }

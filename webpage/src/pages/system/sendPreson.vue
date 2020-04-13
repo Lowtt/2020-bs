@@ -1,4 +1,5 @@
 <template>
+  <!-- 配送人页面 -->
   <div style="width: 96%;margin: 0 auto">
     <a-row>
       <a-Form style="margin-top: 10px;" :form="form1" @submit="formSearch">
@@ -22,6 +23,7 @@
     </a-row>
 
     <a-divider />
+
     <a-row style="margin-top: 20px">
       <a-table
         :columns="columns"
@@ -141,23 +143,24 @@ const columns = [
 export default {
   data() {
     return {
-      tableData: [],
-      operaTime: new Date().toLocaleString(),
-      visible: false,
-      loading: false,
-      modalTitle: "",
+      tableData: [], //表格数据
+      operaTime: new Date().toLocaleString(), //弹出框右上角时间
+      visible: false, //弹出框可见
+      loading: false, //表格请求数据时loading状态
+      modalTitle: "", //弹出框标题
       pagination: {
-        size: "small",
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        showQuickJumper: true,
-        showSizeChanger: true
+        //表格页码等配置
+        size: "small", //尺寸
+        current: 1, //当前页
+        pageSize: 10, //每页数据条数
+        total: 0, //总条数
+        showQuickJumper: true, //允许快速跳至某一页
+        showSizeChanger: true //允许修改当前页数
       },
-      form1: this.$form.createForm(this),
-      form2: this.$form.createForm(this),
-      columns,
-      personInfo: {},
+      form1: this.$form.createForm(this), //创建表单1
+      form2: this.$form.createForm(this), //创建表单2
+      columns, //表格表头
+      personInfo: {}, //被修改配送人的信息
       queryParams: {
         pageNum: 1,
         pageSize: 10
@@ -175,6 +178,7 @@ export default {
     this.queryInitData();
   },
   methods: {
+    // 获取页面数据
     queryInitData() {
       this.loading = true;
       queryPersonByPage(this.queryParams).then(res => {
@@ -185,6 +189,7 @@ export default {
           });
           this.tableData = res.data.data;
           this.pagination = {
+            //配置翻页工具
             ...this.pagination,
             total: res.data.total,
             pageSize: res.data.pageSize,
@@ -197,6 +202,11 @@ export default {
         this.loading = false;
       });
     },
+
+    /**
+     * 删除配送人
+     * @key obj:被删除人的信息
+     */
     deleteSendPerson(obj) {
       let _this = this;
       this.$confirm({
@@ -205,6 +215,7 @@ export default {
         okText: "确定",
         cancelText: "取消",
         onOk() {
+          //点击确定触发
           deletePerson({ id: obj.id }).then(res => {
             if (res.code == 200) {
               _this.$message.success("删除成功!");
@@ -216,8 +227,9 @@ export default {
         }
       });
     },
+    // 表格搜索
     formSearch(e) {
-      e.preventDefault();
+      e.preventDefault(); //阻止默认事件,防止表单被清空
       this.form1.validateFields((err, values) => {
         if (!err) {
           this.queryParams = {
@@ -228,6 +240,7 @@ export default {
         }
       });
     },
+    // 页数改变时调用
     tableChange(pag) {
       this.pagination = {
         ...this.pagination,
@@ -241,11 +254,13 @@ export default {
       };
       this.queryInitData();
     },
+    // 修改配送人员
     updateSendPerson(obj) {
       this.personInfo = obj;
       this.visible = true;
       this.modalTitle = "修改人员";
     },
+    //弹出框确定
     modalOk(e) {
       e.preventDefault();
       this.form2.validateFields((err, values) => {
@@ -289,6 +304,7 @@ export default {
       this.visible = true;
       this.modalTitle = "新增人员";
     },
+    // 弹出框取消
     modalClose() {
       this.visible = false;
       this.personInfo = {};

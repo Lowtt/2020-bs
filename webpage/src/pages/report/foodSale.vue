@@ -1,4 +1,5 @@
 <template>
+  <!-- 菜品页面 -->
   <div style="width: 96%;margin: 0 auto">
     <a-row>
       <a-Form class="form-content" :form="form" @submit="formSearch">
@@ -64,7 +65,7 @@
           slot-scope="text, record,index"
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
         <span slot="total" slot-scope="text,record">{{record.price*record.totalNum}}</span>
-         <span slot="type" slot-scope="text">{{foodType[text].name}}</span>
+        <span slot="type" slot-scope="text">{{foodType[text].name}}</span>
       </a-table>
     </a-row>
   </div>
@@ -137,7 +138,7 @@ export default {
       wrapperCol: {
         span: 17
       },
-      loading:false,
+      loading: false,
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -154,7 +155,8 @@ export default {
   },
   methods: {
     formSearch(e) {
-      e.preventDefault();
+      //表格搜索触发
+      e.preventDefault(); //阻止表格提交事件,防止搜索后将搜索条件清空
       this.form.validateFields((err, values) => {
         if (!err) {
           if (values.time) {
@@ -182,9 +184,11 @@ export default {
       });
     },
     disabledDate(current) {
+      //设置日期可选区域
       return current && current > moment().endOf("M");
     },
     handleRest() {
+      //重置表格
       this.form.resetFields();
       this.queryParams = {
         pageSize: 10,
@@ -196,6 +200,7 @@ export default {
       };
       this.queryInitData();
     },
+    // 表格页数,页码改变时触发
     tableChange(pag) {
       this.pagination = {
         ...this.pagination,
@@ -209,6 +214,7 @@ export default {
       };
       this.queryInitData();
     },
+    // 获取页面数据
     queryInitData() {
       this.loading = true;
       queryFoodSell(this.queryParams).then(res => {
@@ -217,6 +223,7 @@ export default {
             item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
           });
           this.tableData = res.data.data;
+          // 设置表格页码处数据
           this.pagination = {
             ...this.pagination,
             total: res.data.total,
@@ -236,8 +243,6 @@ export default {
 
 <style scoped>
 .form-content {
-  /* display: flex; */
   margin-top: 10px;
-  /* justify-content: space-around; */
 }
 </style>

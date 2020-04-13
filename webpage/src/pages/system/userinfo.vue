@@ -1,4 +1,5 @@
 <template>
+<!-- 用户信息界面 -->
   <div style="padding:20px">
     <a-row>
       <a-Form style="margin-top: 10px;" :form="form" @submit="formSearch">
@@ -139,10 +140,10 @@ export default {
         showQuickJumper: true,
         showSizeChanger: true
       },
-      loading:false,
-      visible: false,
-      modalTitle: "",
-      tableData: [],
+      loading:false,//加载数据时表格Loading
+      visible: false,//弹出框是否可见
+      modalTitle: "",//弹出框标题
+      tableData: [],//表格信息
       userInfo: {}, //用户信息
       labelCol: {
         span: 8
@@ -160,6 +161,7 @@ export default {
     this.queryInitData();
   },
   methods: {
+    // 获取页面数据
     queryInitData() {
       this.loading = true
       queryUser(this.queryParams).then(res => {
@@ -182,6 +184,10 @@ export default {
         this.loading = false
       });
     },
+    /**
+     * 创建用户
+     * @key value:创建的用户信息
+     */
     createUser(value) {
       createUser(value).then(res => {
         if (res.code == 200) {
@@ -198,6 +204,10 @@ export default {
       this.visible = false;
       this.userInfo = {};
     },
+    /**
+     * 表格改变
+     * @key pag:改变的信息
+     */
     tableChange(pag) {
       this.pagination = {
         ...this.pagination,
@@ -211,6 +221,7 @@ export default {
       };
       this.queryInitData();
     },
+    //重置
     handleRest() {
       this.form.resetFields();
       this.queryParams = {
@@ -219,17 +230,24 @@ export default {
       };
       this.queryInitData();
     },
+    // 弹出框确定
     modalOk() {
       this.form1.validateFields((err, values) => {
         if (!err) {
           if (this.userInfo.username) {
+            //如果用户信息存在,则代表是修改
             this.updateUser(values);
           } else {
+            //用户信息不存在,新增
             this.createUser(values);
           }
         }
       });
     },
+    /**
+     * 修改用户
+     * @key obj:用户修改的基本信息
+     */
     updateUser(values) {
       updateUser({ id: this.userInfo.id, ...values }).then(res => {
         if (res.code == 200) {
@@ -246,7 +264,7 @@ export default {
       this.visible = true;
       this.modalTitle = "新增";
     },
-
+// 表单搜索
     formSearch(e) {
       e.preventDefault();
       this.form.validateFields((err, values) => {
@@ -259,6 +277,10 @@ export default {
         }
       });
     },
+    /**
+     * 删除用户
+     * @key obj:被删除人的信息
+     */
     deleteUser(obj) {
       let _this = this;
       this.$confirm({

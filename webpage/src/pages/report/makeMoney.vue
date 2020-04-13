@@ -1,4 +1,5 @@
 <template>
+<!-- 菜品销量页面 -->
   <div style="width: 96%;margin: 0 auto">
     <a-row>
       <a-Form class="form-content" :form="form" @submit="formSearch">
@@ -85,7 +86,6 @@ export default {
           .format("YYYY-MM"),
         "YYYY-MM"
       ),
-      // initDate: moment(moment().format("YYYY-MM"), "YYYY-MM"),
       format: "YYYY-MM",
       form: this.$form.createForm(this),
       labelCol: {
@@ -112,10 +112,10 @@ export default {
       return current && current > moment().endOf("M");
     },
     formSearch(e) {
-      e.preventDefault();
+      e.preventDefault();//阻止表格默认事件
       this.form.validateFields((err, values) => {
         if (!err) {
-          if (values.time) {
+          if (values.time) {//如果时间存在,则代表通过了时间搜索
             values.startTime = moment(values.time)
               .startOf("month")
               .format("YYYY-MM-DD");
@@ -123,7 +123,7 @@ export default {
               .endOf("month")
               .format("YYYY-MM-DD");
             delete values.time;
-          } else {
+          } else {//获取初始状态数据
             values.startTime = moment(moment().startOf("month"))
               .subtract(1, "M")
               .format("YYYY-MM-DD");
@@ -149,6 +149,7 @@ export default {
       };
       this.queryInitData();
     },
+    // 获取页面数据
     queryInitData() {
       this.loading = true;
       queryMakeMoney(this.queryParams).then(res => {

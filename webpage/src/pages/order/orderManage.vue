@@ -1,4 +1,5 @@
 <template>
+  <!-- 点餐界面 -->
   <div style="width: 96%;margin: 0 auto">
     <a-row class="content">
       <a-col :span="12" class="left-content" :style="{'min-height':contentHeight+'px !important' }">
@@ -49,6 +50,7 @@
               </a-modal>
             </div>
           </a-tab-pane>
+
           <a-tab-pane tab="外卖" key="2">
             <div style="padding-right:10px">
               <a-table
@@ -68,6 +70,7 @@
                   <a @click="deleteTakeOut(record.id)">删除</a>
                 </span>
               </a-table>
+
               <a-modal
                 v-model="visible"
                 title="外卖详情"
@@ -92,6 +95,7 @@
           </a-tab-pane>
         </a-tabs>
       </a-col>
+
       <a-col
         :span="12"
         class="right-content"
@@ -121,7 +125,9 @@
             </div>
           </div>
         </a-row>
+
         <a-divider style="margin:3px 0" />
+
         <a-row>
           <a-tabs @change="rightTabChange" defaultActiveKey="0">
             <a-tab-pane v-for="item in foodType" :tab="item.name" :key="item.key+''">
@@ -165,6 +171,7 @@ import {
 } from "../../axios/api";
 import moment from "moment";
 const columns = [
+  //结账表头
   {
     dataIndex: "name",
     title: "商品名称",
@@ -180,7 +187,6 @@ const columns = [
     dataIndex: "num",
     align: "center"
   },
-
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
@@ -188,6 +194,7 @@ const columns = [
   }
 ];
 const takeOutColumns = [
+  //外卖订单表头
   {
     title: "创建时间",
     dataIndex: "createAt",
@@ -216,6 +223,7 @@ const takeOutColumns = [
   }
 ];
 const takeOutDetailColumns = [
+  //外卖详情的表头
   {
     dataIndex: "name",
     title: "商品名称",
@@ -261,10 +269,10 @@ export default {
     };
   },
   created() {
-    this.setPopularColor();
-    this.queryHotFoods();
+    this.setPopularColor(); //设置火热菜品颜色
+    this.queryHotFoods(); //查找火热菜品
     this.queryFoods(0); //初始化查找主食数据
-    this.querySendPerson();
+    this.querySendPerson(); //查询配送人
   },
   mounted() {},
   methods: {
@@ -277,14 +285,14 @@ export default {
     },
     sendCancel: function() {
       this.sendVisible = false;
-      this.sendId = this.sendPerson[0].id;
+      this.sendId = this.sendPerson[0] && this.sendPerson[0].id;
     },
     // 生成外卖订单
     sendOk: function() {
       let price = 0;
       this.tableData.map(item => {
         price += item.num * item.price;
-      });
+      }); //计算外卖的价钱
       let obj = {
         sendId: this.sendId,
         price: price,
@@ -292,9 +300,9 @@ export default {
       };
       createTakeWay(obj).then(res => {
         if (res.code == 200) {
-          this.sendVisible = false;
-          this.tableData = [];
-          this.sendId = this.sendPerson[0].id;
+          this.sendVisible = false; //隐藏选择配送人的弹出框
+          this.tableData = []; //清除结账界面的数据
+          this.sendId = this.sendPerson[0] && this.sendPerson[0].id; //还原配送人id
           this.$message.success("外卖订单生成成功,请前往外卖栏配送!");
         } else {
           this.$message.error("外卖订单生成失败" + res.message);
@@ -310,10 +318,10 @@ export default {
             item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
           });
           this.takeOutData = res.data;
-          this.takeOutLoading = false;
         } else {
           this.$message.error("外卖订单查询失败" + res.message);
         }
+        this.takeOutLoading = false;
       });
     },
     //查询配送人员
@@ -368,7 +376,7 @@ export default {
             res => {
               if (res.code == 200) {
                 _this.$message.success("配送成功!");
-                _this.queryAllTakeOut();
+                _this.queryAllTakeOut();//配送成功后重新请求外卖订单数据
               } else {
                 _this.$message.error(res.message);
               }
@@ -389,7 +397,7 @@ export default {
           deleteTakeWay({ id: id }).then(res => {
             if (res.code == 200) {
               _this.$message.success("删除成功!");
-              _this.queryAllTakeOut();
+              _this.queryAllTakeOut();//删除后重新请求外卖订单
             } else {
               _this.$message.error(res.message);
             }
@@ -441,7 +449,7 @@ export default {
           } else if (operaContent == "外卖") {
             _this.takeOut();
           } else {
-            _this.deleteAllFood();
+            _this.deleteAllFood();//删除结账框所有数据
           }
         }
       });
@@ -490,6 +498,7 @@ export default {
     addFood(index) {
       this.tableData[index].num += 1;
     },
+    //结账表格中删除数据
     deleteFood(index) {
       if (this.tableData[index].num > 1) {
         this.tableData[index] = {

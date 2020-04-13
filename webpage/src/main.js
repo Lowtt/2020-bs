@@ -10,13 +10,11 @@ import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 Vue.prototype.$echarts = echarts
 
-//公共组件
-import header from './components/header'
+
 
 Vue.config.productionTip = false
 
 Vue.use(antd);
-Vue.component('common-header', header);
 
 new Vue({
   el: '#app',

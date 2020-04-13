@@ -16,11 +16,8 @@ export default {
     }
   },
   created(){
-    // this.$router.push('/login');
-    // alert(document.documentElement.clientHeight)
-    let isHeight=document.documentElement.clientHeight;
-    this.$store.commit('setHeight',isHeight);
-    //console.log(this.$store.getters.getHeight)
+    let isHeight=document.documentElement.clientHeight;//获取当前屏幕可见高度
+    this.$store.commit('setHeight',isHeight);//存至中间库(可以理解成一个中间介质)
   }
 }
 </script>

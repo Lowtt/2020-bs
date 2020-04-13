@@ -30,15 +30,18 @@
           </a-input>
         </div>
 
-     
-          <div class="small-text">
+        <div class="small-text">
           <span class="changeBtn" @click="changePassword">修改密码</span>
           <span class="loginBtn" @click="toLogin">我要登录</span>
         </div>
-          
-        
+
         <div style="margin-top: 20px">
-          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="toIndex" :loading='regLoading'>注册</a-button>
+          <a-button
+            style="width: 360px;height: 40px"
+            type="primary"
+            v-on:click="toIndex"
+            :loading="regLoading"
+          >注册</a-button>
         </div>
       </div>
     </div>
@@ -53,7 +56,7 @@ export default {
     return {
       userName: "",
       passWord: "",
-      regLoading:false
+      regLoading: false
     };
   },
   created() {},
@@ -62,7 +65,7 @@ export default {
     changePassword() {
       this.$router.push("/update");
     },
-    toLogin: function(){
+    toLogin: function() {
       this.$router.push("/login");
     },
 
@@ -75,7 +78,7 @@ export default {
         this.$message.error("请输入密码!");
         return;
       }
-      this.regLoading = true
+      this.regLoading = true;
       regUser({
         username: this.userName,
         password: this.passWord
@@ -83,10 +86,10 @@ export default {
         if (res.code == 200) {
           this.$message.success("注册成功,请登录!");
           this.$router.push("/login");
-        }else{
-          this.$message.error(res.message)
+        } else {
+          this.$message.error(res.message);
         }
-        this.regLoading = false
+        this.regLoading = false;
       });
     }
   }

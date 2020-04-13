@@ -1,4 +1,5 @@
 <template>
+  <!-- layer布局 -->
   <a-layout>
     <a-layout-header>
       <div class="header-info">
@@ -6,7 +7,7 @@
         <span>
           <a-icon type="user" />
           <a-dropdown>
-            <span class="ant-dropdown-link" @click="e => e.preventDefault()">
+            <span class="ant-dropdown-link">
               {{userInfo}}
               <a-icon type="down" />
             </span>
@@ -23,7 +24,7 @@
     <a-layout :style="{'min-height':isHeight+'px !important' }">
       <a-layout-sider>
         <a-menu mode="inline" theme="dark">
-          <a-menu-item class="homeItem" @click="toIndex" style='padding-left:25px'>
+          <a-menu-item class="homeItem" @click="toIndex" style="padding-left:25px">
             <a-icon type="home" style="margin-rigth: 0" />
             <span>首页</span>
           </a-menu-item>
@@ -36,9 +37,6 @@
             <a-menu-item class="itemBase">
               <router-link to="/order/orderManage">点餐管理</router-link>
             </a-menu-item>
-            <!-- <a-menu-item class="itemBase">
-              <router-link to="/grade/decRecord">结账管理</router-link>
-            </a-menu-item>-->
           </a-sub-menu>
 
           <a-sub-menu class="menuBase">
@@ -80,29 +78,25 @@
 </template>
 
 <script>
-import headerUser from "../components/header";
 export default {
   name: "index",
   data() {
     return {
-      isHeight: this.$store.getters.getHeight - 60,
-      userInfo: JSON.parse(sessionStorage.getItem("userInfo")).username
+      isHeight: this.$store.getters.getHeight - 60, //获取当前可见屏幕高度
+      userInfo: JSON.parse(sessionStorage.getItem("userInfo")).username //获取登录的用户名(登录名)
     };
   },
   mounted() {},
 
   methods: {
     toIndex: function() {
-      this.$router.push("/index/index");
+      this.$router.push("/index/index"); //跳至首页
     },
-    loginOut:function(){
-      sessionStorage.clear()
-      this.$router.push("/login");
+    loginOut: function() {
+      sessionStorage.clear(); //清楚缓存
+      this.$router.push("/login"); //跳至登录界面
     }
   }
-  // components:{  //用来注册子组件的节点
-  //     "header-user": headerUser
-  // }
 };
 </script>
 
@@ -111,7 +105,7 @@ export default {
   height: 60px;
   background: rgb(49, 154, 247);
   line-height: 60px;
-  padding:0 20px;
+  padding: 0 20px;
   text-align: start;
   position: fixed;
   width: 100%;
@@ -127,19 +121,20 @@ export default {
     background: rgb(44, 52, 74);
     .ant-menu-item-selected {
       background: none;
-      a{
-        color: rgb(24,132,242);
+      a {
+        color: rgb(24, 132, 242);
       }
     }
   }
 }
-.menuBase,.homeItem {
+.menuBase,
+.homeItem {
   min-width: 200px;
   text-align: left;
   margin-bottom: 0 !important;
 }
-.itemBase{
-padding-left: 60px;
+.itemBase {
+  padding-left: 60px;
 }
 .header-info {
   color: white;
@@ -147,21 +142,20 @@ padding-left: 60px;
   display: flex;
   justify-content: space-between;
 }
-.homeItem{
-  i{
+.homeItem {
+  i {
     margin-right: 0;
   }
 }
-.ant-menu-submenu{
-  margin:0;
-.ant-menu-submenu-title {
-  padding-left: 0 !important;
-  span{
-    i{
-      margin-right: 0;
+.ant-menu-submenu {
+  margin: 0;
+  .ant-menu-submenu-title {
+    padding-left: 0 !important;
+    span {
+      i {
+        margin-right: 0;
+      }
     }
   }
 }
-}
-
 </style>
