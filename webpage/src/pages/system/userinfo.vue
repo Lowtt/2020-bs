@@ -166,6 +166,7 @@ export default {
         if (res.code == 200) {
           res.data.data.map(item => {
             item.createAt = moment(item.createAt).format("YYYY-MM-DD HH:mm:ss");
+            item.updateAt = moment(item.updateAt).format("YYYY-MM-DD HH:mm:ss");
           });
           this.tableData = res.data.data;
           this.pagination = {

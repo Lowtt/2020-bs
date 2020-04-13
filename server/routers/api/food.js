@@ -7,7 +7,7 @@ const Response = require('../../public/utils/response.js')
 
 // 查询火热菜品
 router.post('/queryHotFoods', (req, res) => {
-    let sql = 'SELECT id,name,num,type,price,url FROM food_info ORDER BY num  DESC LIMIT 0,4'
+    let sql = 'SELECT id,name,sum(num) as num,type,price,url FROM sell_info GROUP BY name ORDER BY num  DESC LIMIT 0,4'
     db.sqlQuery(sql).then(result => {
         let response = new Response('查询成功!', 200, result)
         res.json(response)

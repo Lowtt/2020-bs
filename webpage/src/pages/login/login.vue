@@ -2,7 +2,7 @@
   <div id="login">
     <div style="padding-top: 150px">
       <div style="margin-bottom: 30px">
-        <h1>xx系统</h1>
+        <h1>快餐店收银系统</h1>
       </div>
       <div style="width: 500px;background: rgb(240,242,245);margin: 0 auto;padding: 50px 0 30px">
         <div>

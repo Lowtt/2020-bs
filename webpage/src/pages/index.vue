@@ -2,7 +2,7 @@
   <a-layout>
     <a-layout-header>
       <div class="header-info">
-        <span @click="toIndex" style="cursor:pointer">xx系统</span>
+        <span @click="toIndex" style="cursor:pointer">快餐店收银系统</span>
         <span>
           <a-icon type="user" />
           <a-dropdown>
@@ -23,8 +23,8 @@
     <a-layout :style="{'min-height':isHeight+'px !important' }">
       <a-layout-sider>
         <a-menu mode="inline" theme="dark">
-          <a-menu-item class="menuBase" @click="toIndex">
-            <a-icon type="home" style="margin-left: 10px" />
+          <a-menu-item class="homeItem" @click="toIndex" style='padding-left:25px'>
+            <a-icon type="home" style="margin-rigth: 0" />
             <span>首页</span>
           </a-menu-item>
 
@@ -126,13 +126,20 @@ export default {
   .ant-menu-dark {
     background: rgb(44, 52, 74);
     .ant-menu-item-selected {
-      background: rgb(47, 67, 89);
+      background: none;
+      a{
+        color: rgb(24,132,242);
+      }
     }
   }
 }
-.menuBase {
-  min-width: 180px;
+.menuBase,.homeItem {
+  min-width: 200px;
   text-align: left;
+  margin-bottom: 0 !important;
+}
+.itemBase{
+padding-left: 60px;
 }
 .header-info {
   color: white;
@@ -140,7 +147,21 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+.homeItem{
+  i{
+    margin-right: 0;
+  }
+}
+.ant-menu-submenu{
+  margin:0;
 .ant-menu-submenu-title {
   padding-left: 0 !important;
+  span{
+    i{
+      margin-right: 0;
+    }
+  }
 }
+}
+
 </style>

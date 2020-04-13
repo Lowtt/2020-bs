@@ -12,7 +12,7 @@ router.post('/queryUser', (req, res) => {
         pageNum,
         pageSize
     } = req.body
-    let querySql = 'SELECT username,create_at as createAt,user_id as id,password FROM login '
+    let querySql = 'SELECT username,create_at as createAt,update_at as updateAt,user_id as id,password FROM login '
     let totalSql = 'SELECT COUNT(*) as total FROM login '
     if (userName) {
         querySql += `WHERE username like '%${userName}%'`

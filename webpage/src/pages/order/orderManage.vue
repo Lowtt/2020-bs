@@ -415,6 +415,7 @@ export default {
     handleCancel() {
       this.visible = false;
     },
+    // 外卖详情
     queryOutDetail(id) {
       this.detailLoading = true;
       takeWayDetail({ id: id }).then(res => {

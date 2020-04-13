@@ -50,7 +50,7 @@
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
         <span slot="typeName" slot-scope="text">{{foodType[text].name}}</span>
         <span slot="url" slot-scope="text">
-          <img :src="text" width="32" height="32" />
+          <img :src="text" width="24" height="24" />
         </span>
       </a-table>
     </a-row>

@@ -135,12 +135,12 @@ router.post('/createTakeWay', (req, res) => {
     } = req.body
     let inSql = 'INSERT INTO take_way (send_id,price) VALUES (?,?)'
     let newListSql = 'SELECT MAX(takeway_id) as newId FROM take_way'
-    let addInfoSql = 'INSERT INTO take_way_info (take_id,price,num,name,type) VALUES (?,?,?,?,?)'
+    let addInfoSql = 'INSERT INTO take_way_info (take_id,price,num,name,type,url) VALUES (?,?,?,?,?,?)'
     db.sqlQuery(inSql, [sendId, price]).then(() => {
         db.sqlQuery(newListSql).then(result => {
             let newId = result[0].newId
             takewayInfo.map((item, index) => {
-                db.sqlQuery(addInfoSql, [newId, item.price, item.num, item.name, item.type]).then(() => {
+                db.sqlQuery(addInfoSql, [newId, item.price, item.num, item.name, item.type, item.url]).then(() => {
                     if (index == takewayInfo.length - 1) {
                         let response = new Response('外卖操作成功!', 200)
                         res.json(response)
@@ -148,7 +148,7 @@ router.post('/createTakeWay', (req, res) => {
                 }).catch(err => {
                     res.json({
                         code: 250,
-                        message: err
+                        message: err.code
                     })
                 })
             })
@@ -248,7 +248,7 @@ router.post('/takeOutSend', (req, res) => {
         id,
         createAt
     } = req.body
-    let querySql = 'SELECT name,price,num,type FROM take_way_info WHERE take_id = ?' //获取外卖菜品详情
+    let querySql = 'SELECT name,price,num,type,url FROM take_way_info WHERE take_id = ?' //获取外卖菜品详情
     db.sqlQuery(querySql, [id]).then((result) => {
         let totalMoney = 0
         let inSql = 'INSERT INTO sell (sell_type,total_money,create_at) VALUES (1,?,?)' //售出数据插入售出数据库
@@ -259,9 +259,9 @@ router.post('/takeOutSend', (req, res) => {
             let newListSql = 'SELECT MAX(id) as newId FROM sell' //获取最新插入数据id
             db.sqlQuery(newListSql).then(res1 => {
                 let newId = res1[0].newId
-                let addInfoSql = 'INSERT INTO sell_info (name,price,num,sell_id,type) VALUES (?,?,?,?,?)'
+                let addInfoSql = 'INSERT INTO sell_info (name,price,num,sell_id,type,url) VALUES (?,?,?,?,?,?)'
                 result.map((item, index) => {
-                    db.sqlQuery(addInfoSql, [item.name, item.price, item.num, newId, item.type]).then(() => {
+                    db.sqlQuery(addInfoSql, [item.name, item.price, item.num, newId, item.type, item.url]).then(() => {
                         if (index == result.length - 1) {
                             let sql = 'UPDATE take_way SET flag= 2 WHERE takeway_id = ?'
                             db.sqlQuery(sql, [id]).then(() => {
