@@ -1,6 +1,6 @@
 <template>
 <!-- 用户信息界面 -->
-  <div style="padding:20px">
+  <div style="width: 96%;margin: 0 auto">
     <a-row>
       <a-Form style="margin-top: 10px;" :form="form" @submit="formSearch">
         <a-col :span="8">
