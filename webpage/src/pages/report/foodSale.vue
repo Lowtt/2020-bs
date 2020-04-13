@@ -137,6 +137,7 @@ export default {
       wrapperCol: {
         span: 17
       },
+      loading:false,
       queryParams: {
         pageNum: 1,
         pageSize: 10,
