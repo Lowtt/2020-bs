@@ -25,7 +25,7 @@ app.use(function(req, res, next) { //token验证
         let token = req.headers.token;
         let result = jwt.verifyToken(token);
         if (result == 'err') {
-            // res.status(401)
+            res.status(202)
             res.json({
                 code: 401,
                 message: 'token过期,请重新登录!'

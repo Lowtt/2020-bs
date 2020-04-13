@@ -1,5 +1,5 @@
 import axios from 'axios'
-
+import {notification} from 'ant-design-vue';
 
 axios.interceptors.request.use(config => {
     const userInfo = sessionStorage.getItem('userInfo');
@@ -19,9 +19,11 @@ axios.interceptors.request.use(config => {
 let self = this
 axios.interceptors.response.use(function(response) {
     if (response.data.code == 401) {
-        self.$message.error('用户信息过期，请重新登录!');
-        self.$router.replace('/login')
-        
+        notification.error({
+            message: 'token错误',
+            description: '请重新登录'
+          })
+        window.location.href='http://localhost:8080/#/login'
     } else {
         return response;
     }

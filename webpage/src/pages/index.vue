@@ -1,15 +1,29 @@
 <template>
   <a-layout>
     <a-layout-header>
-      <div style="color: white;font-size:20px">
-        <span>xx系统</span>
+      <div class="header-info">
+        <span @click="toIndex" style="cursor:pointer">xx系统</span>
+        <span>
+          <a-icon type="user" />
+          <a-dropdown>
+            <span class="ant-dropdown-link" @click="e => e.preventDefault()">
+              {{userInfo}}
+              <a-icon type="down" />
+            </span>
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <a @click="loginOut">退出登录</a>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
+        </span>
       </div>
     </a-layout-header>
 
     <a-layout :style="{'min-height':isHeight+'px !important' }">
       <a-layout-sider>
         <a-menu mode="inline" theme="dark">
-          <a-menu-item class="menuBase" v-on:click="toIndex">
+          <a-menu-item class="menuBase" @click="toIndex">
             <a-icon type="home" style="margin-left: 10px" />
             <span>首页</span>
           </a-menu-item>
@@ -24,7 +38,7 @@
             </a-menu-item>
             <!-- <a-menu-item class="itemBase">
               <router-link to="/grade/decRecord">结账管理</router-link>
-            </a-menu-item> -->
+            </a-menu-item>-->
           </a-sub-menu>
 
           <a-sub-menu class="menuBase">
@@ -66,29 +80,29 @@
 </template>
 
 <script>
+import headerUser from "../components/header";
 export default {
   name: "index",
   data() {
     return {
-      isHeight: this.$store.getters.getHeight - 60
+      isHeight: this.$store.getters.getHeight - 60,
+      userInfo: JSON.parse(sessionStorage.getItem("userInfo")).username
     };
   },
-  created() {},
-  beforeMount() {},
+  mounted() {},
+
   methods: {
     toIndex: function() {
       this.$router.push("/index/index");
     },
-    toNotice: function() {
-      this.$router.push("/notice/schoolNotice");
-    },
-    toInform: function() {
-      this.$router.push("/inform/informMsg");
-    },
-    toInfo: function() {
-      this.$router.push("/station/stationInfo");
+    loginOut:function(){
+      sessionStorage.clear()
+      this.$router.push("/login");
     }
   }
+  // components:{  //用来注册子组件的节点
+  //     "header-user": headerUser
+  // }
 };
 </script>
 
@@ -97,31 +111,36 @@ export default {
   height: 60px;
   background: rgb(49, 154, 247);
   line-height: 60px;
-  padding-left: 20px;
+  padding:0 20px;
   text-align: start;
   position: fixed;
   width: 100%;
   z-index: 99;
 }
 .ant-layout-sider {
-  background: rgb(44,52,74);
+  background: rgb(44, 52, 74);
   margin-top: 60px;
   position: fixed;
   min-height: 100%;
   z-index: 90;
   .ant-menu-dark {
-    background: rgb(44,52,74);
-     .ant-menu-item-selected{
-       background: rgb(47,67,89);
-     }
+    background: rgb(44, 52, 74);
+    .ant-menu-item-selected {
+      background: rgb(47, 67, 89);
+    }
   }
 }
 .menuBase {
   min-width: 180px;
   text-align: left;
-  
+}
+.header-info {
+  color: white;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 .ant-menu-submenu-title {
-    padding-left: 0 !important;
-  }
+  padding-left: 0 !important;
+}
 </style>

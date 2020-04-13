@@ -6,9 +6,6 @@ const db = require('../../public/bin/mysql.js')
 const Response = require('../../public/utils/response.js')
 
 
-
-
-
 function createSql(param, startTime, endTime, who) {
     return ` ${param} create_at >= "${startTime}" and create_at <= "${endTime}" GROUP BY ${who} `
 }
@@ -68,7 +65,7 @@ router.post('/queryMakeMoney', (req, res) => {
         startTime,
         endTime
     } = req.body
-    let sql = "SELECT sum(total_money) as totalMoney,sell_type as sellType,create_at as createAt FROM sell WHERE create_at >= ? AND create_at <= ? GROUP BY sell_type,create_at"
+    let sql = "SELECT sum(total_money) as totalMoney,sell_type as sellType,create_at as createAt FROM sell WHERE create_at >= ? AND create_at <= ? GROUP BY sell_type,create_at ORDER BY create_at DESC"
     db.sqlQuery(sql, [startTime, endTime]).then(result => {
         for (let i = 0; i < result.length; i++) {
             let obj = {
