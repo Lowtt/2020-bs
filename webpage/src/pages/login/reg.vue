@@ -38,7 +38,7 @@
           
         
         <div style="margin-top: 20px">
-          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="toIndex">注册</a-button>
+          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="toIndex" :loading='regLoading'>注册</a-button>
         </div>
       </div>
     </div>
@@ -52,7 +52,8 @@ export default {
   data() {
     return {
       userName: "",
-      passWord: ""
+      passWord: "",
+      regLoading:false
     };
   },
   created() {},
@@ -74,6 +75,7 @@ export default {
         this.$message.error("请输入密码!");
         return;
       }
+      this.regLoading = true
       regUser({
         username: this.userName,
         password: this.passWord
@@ -84,6 +86,7 @@ export default {
         }else{
           this.$message.error(res.message)
         }
+        this.regLoading = false
       });
     }
   }

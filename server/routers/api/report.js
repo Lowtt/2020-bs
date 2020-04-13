@@ -68,7 +68,7 @@ router.post('/queryMakeMoney', (req, res) => {
         startTime,
         endTime
     } = req.body
-    let sql = "SELECT sum(total_money) as totalMoney,sell_type as sellType,create_at as createAt FROM sell WHERE create_at >=? AND create_at <=? GROUP BY sell_type,create_at"
+    let sql = "SELECT sum(total_money) as totalMoney,sell_type as sellType,create_at as createAt FROM sell WHERE create_at >= ? AND create_at <= ? GROUP BY sell_type,create_at"
     db.sqlQuery(sql, [startTime, endTime]).then(result => {
         for (let i = 0; i < result.length; i++) {
             let obj = {

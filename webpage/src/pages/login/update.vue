@@ -59,7 +59,12 @@
           <span class="regBtn" @click="regAccount">注册用户</span>
         </div>
         <div style="margin-top: 20px">
-          <a-button style="width: 360px;height: 40px" type="primary" v-on:click="updateOk">确定</a-button>
+          <a-button
+            style="width: 360px;height: 40px"
+            type="primary"
+            v-on:click="updateOk"
+            :loading="updateLoading"
+          >确定</a-button>
         </div>
       </div>
     </div>
@@ -75,7 +80,8 @@ export default {
       userName: "",
       passWord: "",
       newAassWord1: "",
-      newAassWord2: ""
+      newAassWord2: "",
+      updateLoading: false
     };
   },
   created() {},
@@ -108,6 +114,7 @@ export default {
         this.$message.error("两次新密码不一致,请重新输入!");
         return;
       }
+      this.updateLoading = true;
       changePassWord({
         username: this.userName,
         oldPassword: this.passWord,
@@ -119,6 +126,7 @@ export default {
         } else {
           this.$message.error(res.message);
         }
+        this.updateLoading = false;
       });
     }
   }

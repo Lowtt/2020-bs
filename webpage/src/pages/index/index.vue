@@ -33,28 +33,44 @@
 </template>
 
 <script>
-import { queryLastHotFoods } from "../../axios/api";
+import {
+  queryLastHotFoods,
+  queryLastWeek,
+  queryTodayOrder
+} from "../../axios/api";
 import moment from "moment";
 export default {
   name: "index",
   data() {
     return {
       bestPopular: {
-        date: moment().subtract(1, "M").format("YYYY-MM")
+        //上月最受欢迎菜品查询参数
+        date: moment()
+          .subtract(1, "M")
+          .format("YYYY-MM")
+      },
+      lastWeekNum: {
+        //过去7天食品大类查询参数(营业额参数)
+        startTime: moment()
+          .subtract(7, "d")
+          .format("YYYY-MM-DD 00:00:00"),
+        endTime: moment()
+          .subtract(1, "d")
+          .format("YYYY-MM-DD 23:59,59")
+      },
+      todayOrder: {
+        //当天最受欢迎
+        startTime: moment().format("YYYY-MM-DD 00:00:00"),
+        endTime: moment().format("YYYY-MM-DD 23:59,59")
       }
     };
   },
-  created() {},
   mounted() {
-    var weekOfday = moment().format('E');//计算今天是这周第几天
-var last_monday = moment().subtract(6,'days').format('YYYY/MM/DD');//周一日期
-var last_sunday = moment().subtract(weekOfday, 'days').format('YYYY/MM/DD');//周日日期
-console.log(weekOfday,last_monday,last_sunday)
-    this.queryLastHotFoods();
-
-    this.setOrderNumber();
-    this.setFoodClassify();
-    this.setIncomeMoney();
+    //页面挂载时调用,获取页面初始数据
+    this.queryLastHotFoods(); //上月最受欢饮菜品
+    this.querySevenNum(false); //食品大类
+    this.querySevenNum(true); //营业额
+    this.queryTodayOrders(); //当天每小时订单数
   },
   methods: {
     queryLastHotFoods() {
@@ -121,7 +137,7 @@ console.log(weekOfday,last_monday,last_sunday)
       myChart.setOption(option);
     },
     // 生成每个时间段订单数
-    setOrderNumber: function() {
+    setOrderNumber: function(resultData) {
       let arr = [];
       for (let i = 0; i < 24; i++) {
         if (i < 10) {
@@ -130,7 +146,7 @@ console.log(weekOfday,last_monday,last_sunday)
         arr.push(`${i}:00`);
       }
       let obj = {
-        title: "当天每小时订单数",
+        title: `当天每小时订单数(${moment().format("YYYY-MM-DD")})`,
         tooltipName: "(单)",
         legendData: [],
         xData: {
@@ -148,73 +164,52 @@ console.log(weekOfday,last_monday,last_sunday)
               data: [
                 {
                   name: "平均线",
-                  type: "average",
-                  lineStyle: {
-                    color:
-                      "#" +
-                      Math.floor(Math.random() * 0xffffff)
-                        .toString(16)
-                        .padEnd(6, "0")
-                  }
+                  type: "average"
                 }
               ]
             },
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              0,
-              5,
-              10,
-              15,
-              30,
-              23,
-              19,
-              10,
-              7,
-              10,
-              19,
-              20,
-              35,
-              10,
-              5,
-              0,
-              0
-            ]
+            data: resultData
           }
         ]
       };
-      this.drawChart("orderNumber", obj);
+      this.drawChart("orderNumber", obj, () => this.queryTodayOrders());
     },
-    // 近一周食品种类成交量
-    setFoodClassify: function() {
+    // 查询当天订单
+    queryTodayOrders() {
+      queryTodayOrder(this.todayOrder).then(res => {
+        if (res.code == 200) {
+          this.setOrderNumber(res.data);
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
+    // 查询过去7天数据
+    querySevenNum(isPrice) {
+      queryLastWeek({ ...this.lastWeekNum, isPrice: isPrice }).then(res => {
+        if (res.code == 200) {
+          if (isPrice) {
+            let arr = res.data.map(item => item.income);
+            this.setIncomeMoney(arr);
+          } else {
+            this.setFoodClassify(res.data);
+          }
+        } else {
+          this.$message.error(res.message);
+        }
+      });
+    },
+    // 过去7天食品种类成交量
+    setFoodClassify: function(resultData) {
       let obj = {
         title: "过去7天食品种类成交量",
         tooltipName: "(单)",
-        legendData: ["主食", "小食", "饮料", "成交总量"],
+        legendData: ["主食", "小食", "饮料", "套餐", "成交总量"],
         xData: {
           name: "日期",
           data: [...Array(7).keys()]
             .map(days =>
-              moment(new Date(Date.now() - 86400000 * days)).format(
+              moment(new Date(Date.now() - 86400000 * (days + 1))).format(
                 "YYYY-MM-DD"
               )
             )
@@ -228,85 +223,34 @@ console.log(weekOfday,last_monday,last_sunday)
           {
             name: "主食",
             type: "line",
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [100, 140, 20, 10, 57, 200, 123]
+            data: resultData[0]
           },
           {
             name: "小食",
             type: "line",
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [80, 20, 220, 100, 30, 45, 99]
+            data: resultData[1]
           },
           {
             name: "饮料",
             type: "line",
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [163, 150, 80, 56, 213, 23, 16]
+            data: resultData[2]
+          },
+          {
+            name: "套餐",
+            type: "line",
+            data: resultData[3]
           },
           {
             name: "成交总量",
             type: "line",
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [343, 310, 320, 166, 300, 268, 238]
+            data: resultData[4]
           }
         ]
       };
-      this.drawChart("foodCalssify", obj);
+      this.drawChart("foodCalssify", obj, () => this.querySevenNum(false));
     },
     //营业额
-    setIncomeMoney() {
+    setIncomeMoney(resultData) {
       let obj = {
         title: "过去7天营业额",
         tooltipName: "(元)",
@@ -315,7 +259,7 @@ console.log(weekOfday,last_monday,last_sunday)
           name: "日期",
           data: [...Array(7).keys()]
             .map(days =>
-              moment(new Date(Date.now() - 86400000 * days)).format(
+              moment(new Date(Date.now() - 86400000 * (days + 1))).format(
                 "YYYY-MM-DD"
               )
             )
@@ -343,39 +287,17 @@ console.log(weekOfday,last_monday,last_sunday)
                 }
               ]
             },
-            // itemStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            // lineStyle: {
-            //   color:
-            //     "#" +
-            //     Math.floor(Math.random() * 0xffffff)
-            //       .toString(16)
-            //       .padEnd(6, "0")
-            // },
-            data: [863, 639, 356, 530, 993, 1004, 758]
+
+            data: resultData
           }
         ]
       };
-      this.drawChart("incomeMoney", obj);
+      this.drawChart("incomeMoney", obj, () => this.querySevenNum(true));
     },
     // 生成图表
-    drawChart: function(idName, chartData) {
+    drawChart: function(idName, chartData, updateFunction) {
       let myChart = this.$echarts.init(document.getElementById(idName));
       let option = {
-        // tooltip: {
-        //   trigger: "item",
-        //   formatter: "{a} <br/>{b}: {c} ({d}%)"
-        //   /*formatter:function(val){   //让series 中的文字进行换行
-        //          console.log(val);//查看val属性，可根据里边属性自定义内容
-        //          var content = var['name'];
-        //          return content;//返回可以含有html中标签
-        //      },*/ //自定义鼠标悬浮交互信息提示，鼠标放在饼状图上时触发事件
-        // }, //提示框，鼠标悬浮交互时的信息提示
         title: {
           text: chartData.title,
           left: "center"
@@ -386,6 +308,7 @@ console.log(weekOfday,last_monday,last_sunday)
           feature: {
             magicType: {
               type: ["bar", "line"],
+
               option: {
                 bar: {
                   tooltip: {
@@ -395,6 +318,13 @@ console.log(weekOfday,last_monday,last_sunday)
                   }
                 }
               }
+            },
+            myTool1: {
+              show: true,
+              title: "刷新",
+              icon:
+                "path://M896.384 494.634667A21.461333 21.461333 0 0 1 917.333333 469.333333a21.333333 21.333333 0 0 1 21.290667 22.826667A427.093333 427.093333 0 0 1 725.333333 881.493333C521.258667 999.338667 260.309333 929.408 142.506667 725.333333a434.773333 434.773333 0 0 1-5.674667-10.154666L119.466667 786.645333a19.669333 19.669333 0 0 1-24.917334 14.378667 22.058667 22.058667 0 0 1-15.061333-26.112l29.482667-121.557333a19.669333 19.669333 0 0 1 24.917333-14.378667l120.021333 35.242667c11.050667 3.242667 17.792 14.933333 15.061334 26.112a19.669333 19.669333 0 0 1-24.917334 14.378666l-70.101333-20.565333 5.504 9.856A384 384 0 0 0 704 844.544a384.341333 384.341333 0 0 0 192.384-349.866667zM128 490.88a21.333333 21.333333 0 1 1-42.325333-4.053333C94.634667 349.312 170.368 216.576 298.666667 142.506667a425.941333 425.941333 0 0 1 373.333333-26.026667 424.618667 424.618667 0 0 1 196.266667 160.682667l17.493333-72.277334a19.669333 19.669333 0 0 1 24.96-14.378666c11.008 3.242667 17.792 14.933333 15.061333 26.112l-29.482666 121.557333a19.669333 19.669333 0 0 1-24.917334 14.378667l-120.021333-35.242667a22.058667 22.058667 0 0 1-15.104-26.112 19.669333 19.669333 0 0 1 24.917333-14.378667l69.077334 20.266667a381.738667 381.738667 0 0 0-174.208-141.056 383.189333 383.189333 0 0 0-336.042667 23.424C204.8 245.930667 136.32 367.445333 128 490.88z",
+              onclick: updateFunction
             }
           }
         },
@@ -445,34 +375,10 @@ console.log(weekOfday,last_monday,last_sunday)
 </script>
 
 <style scoped lang="scss">
-.msgIcon:hover {
-  cursor: pointer;
-}
-.studentNum {
-  display: flex;
-  justify-content: center;
-}
-
 .chart-display {
   position: relative;
   overflow: hidden;
   height: 300px;
   border: 1px solid rgb(235, 235, 235);
-}
-
-.icon {
-  border: 1px solid #ccc;
-  margin: 0 auto;
-  overflow: hidden;
-  border-radius: 10px;
-  height: 20px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  width: 130px;
-}
-
-.tips {
-  color: #00cc00;
 }
 </style>

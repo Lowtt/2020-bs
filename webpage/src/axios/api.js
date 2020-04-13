@@ -26,6 +26,12 @@ export const queryHotFoods = params => requestWrapper('post', `${baseUrl}/api/fo
 // 上月菜品top5
 export const queryLastHotFoods = params => requestWrapper('post', `${baseUrl}/api/chart/queryLastHotFoods`, params)
 
+// 过去7天食品大类销售量(及营业额,通过参数isPrice判断)
+export const queryLastWeek = params => requestWrapper('post', `${baseUrl}/api/chart/queryLastWeek`, params)
+
+// 当天订单数量(每小时)
+export const queryTodayOrder = params => requestWrapper('post', `${baseUrl}/api/chart/queryTodayOrderNums`, params)
+
 // 菜品分类
 export const queryFoodType = params => requestWrapper('post', `${baseUrl}/api/food/queryFoodsByType`, params)
 
