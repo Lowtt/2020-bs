@@ -1,5 +1,7 @@
 <template>
+<!-- 整个页面的入口 -->
   <div id="app">
+    <!-- 全页面中文化 -->
     <a-locale-provider :locale='zhCN'>
       <router-view></router-view>
     </a-locale-provider>

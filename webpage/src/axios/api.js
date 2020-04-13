@@ -1,6 +1,6 @@
+// 系统的所有接口
+
 import request from './request'
-
-
 const baseUrl = "http://localhost:3000"
 
 const requestWrapper = (method, url, params = {}) => {
@@ -91,10 +91,3 @@ export const updateUser = params => requestWrapper('post', `${baseUrl}/api/syste
 
 //删除用户
 export const deleteUser = params => requestWrapper('post', `${baseUrl}/api/system/deleteUser`, params)
-
-// 查看站内消息
-export const messageDetail = params => requestWrapper('get', `${baseUrl}/message/listOne?messageId=${params.id}`, params)
-
-
-
-

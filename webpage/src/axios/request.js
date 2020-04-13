@@ -16,7 +16,6 @@ axios.interceptors.request.use(config => {
 })
 
 // 判断token过期
-let self = this
 axios.interceptors.response.use(function(response) {
     if (response.data.code == 401) {
         notification.error({
