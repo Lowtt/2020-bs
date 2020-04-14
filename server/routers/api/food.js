@@ -7,10 +7,31 @@ const Response = require('../../public/utils/response.js')
 
 // 查询火热菜品
 router.post('/queryHotFoods', (req, res) => {
-    let sql = 'SELECT id,name,sum(num) as num,type,price,url FROM sell_info GROUP BY name ORDER BY num  DESC LIMIT 0,4'
+    let sql = 'SELECT id,name,sum(num) as num,type,price,url FROM sell_info GROUP BY name ORDER BY num  DESC'
     db.sqlQuery(sql).then(result => {
-        let response = new Response('查询成功!', 200, result)
-        res.json(response)
+        let allSql = 'SELECT id,name,num,type,price,url FROM food_info' //查询所有菜品,包括被删除的
+        db.sqlQuery(allSql).then(res1 => {
+            for (let i = 0; i < res1.length; i++) {
+                for (let j = 0; j < result.length; j++) {
+                    if (result[j].name == res1[i].name && res1[i].flag == 0) {//去除"被删除"的菜品
+                        result.splice(j, 1)
+                        j--
+                    }
+                }
+            }
+            if (result.length > 8) {
+                let response = new Response('查询成功!', 200, result.map((item, index) => {
+                    if (index < 8) {
+                        return item
+                    }
+                }))
+                res.json(response)
+            } else {
+                let response = new Response('查询成功!', 200, result)
+                res.json(response)
+            }
+        })
+
     }).catch(err => {
         res.json({
             code: 250,
@@ -24,7 +45,7 @@ router.post('/queryFoodsByType', (req, res) => {
     let {
         type
     } = req.body
-    let sql = 'SELECT id,name,num,type,price,url FROM food_info WHERE type = ?'
+    let sql = 'SELECT id,name,num,type,price,url FROM food_info WHERE type = ? AND flag = 1'
     db.sqlQuery(sql, [type]).then(result => {
         let response = new Response('查询成功!', 200, result)
         res.json(response)
@@ -36,9 +57,6 @@ router.post('/queryFoodsByType', (req, res) => {
     })
 })
 
-function createSql(param,startTime,endTime){
-    return ` ${param} create_at >= "${startTime}" and create_at <= "${endTime}"`
-}
 //根据页数查找菜品
 router.post('/queryFoodsByPage', (req, res) => {
     let {
@@ -49,20 +67,20 @@ router.post('/queryFoodsByPage', (req, res) => {
         pageNum,
         pageSize
     } = req.body
-    let querySql = 'SELECT name,create_at as createAt,id,type,price,url,num FROM food_info '
-    let totalSql = 'SELECT COUNT(*) as total FROM food_info '
+    let querySql = 'SELECT name,create_at as createAt,id,type,price,url,num FROM food_info WHERE flag = 1'
+    let totalSql = 'SELECT COUNT(*) as total FROM food_info WHERE flag = 1'
     if (name) {
-        querySql += `WHERE name like '%${name}%'`
-        totalSql += `WHERE name like '%${name}%'`
+        querySql += `AND name like '%${name}%'`
+        totalSql += `AND name like '%${name}%'`
     }
     if (type || type == 0) {
-        querySql += name ? ` and type = ${type}` : `WHERE type = ${type}`
-        totalSql += name ? ` and type = ${type}` : `WHERE type = ${type}`
+        querySql += ` AND type = ${type}`
+        totalSql += ` AND type = ${type}`
     }
     if (startTime && endTime) {
-        
-        querySql += type || type == 0 || name ? createSql('and',startTime,endTime): createSql('WHERE',startTime,endTime)
-        totalSql += type || type == 0 || name ? createSql('and',startTime,endTime): createSql('WHERE',startTime,endTime)
+
+        querySql += ` AND create_at >= "${startTime}" AND create_at <= "${endTime}"`
+        totalSql += ` AND create_at >= "${startTime}" AND create_at <= "${endTime}"`
     }
     querySql += ` ORDER BY createAt DESC LIMIT ${(pageNum-1)*pageSize},${pageSize}`
     db.sqlQuery(querySql).then(result => {
@@ -119,6 +137,41 @@ router.post('/createFood', (req, res) => {
             message: err.code
         })
 
+    })
+})
+
+// 修改菜品
+router.post('/updateFood', (req, res) => {
+    let {
+        name,
+        price,
+        type,
+        url,
+        id
+    } = req.body
+    let updateSql = 'UPDATE food_info SET name = ?,price = ?,type = ?,url = ? WHERE id = ?'
+    db.sqlQuery(updateSql, [name, price, type, url, id]).then(() => {
+        let response = new Response('修改成功!', 200)
+        res.json(response)
+    }).catch(err => {
+        let response = new Response(err.code, 250)
+        res.json(response)
+    })
+})
+
+// 删除菜品
+router.post('/deleteFood', (req, res) => {
+    let {
+
+        id
+    } = req.body
+    let deleteSql = 'UPDATE food_info SET flag = 0 WHERE id = ?'
+    db.sqlQuery(deleteSql, [id]).then(() => {
+        let response = new Response('删除成功!', 200)
+        res.json(response)
+    }).catch(err => {
+        let response = new Response(err.code, 250)
+        res.json(response)
     })
 })
 

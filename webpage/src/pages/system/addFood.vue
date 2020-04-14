@@ -51,21 +51,29 @@
         >{{(queryParams.pageNum-1)*queryParams.pageSize+index+1}}</span>
         <span slot="typeName" slot-scope="text">{{foodType[text].name}}</span>
         <span slot="url" slot-scope="text">
-          <img :src="text" width="24" height="24" />
+          <img :src="text" width="24" height="24" style="cursor:pointer" @click="checkImg(text)" />
+        </span>
+        <span slot="action" slot-scope="text,obj">
+          <a @click="update(obj)">修改</a>
+          <a-divider type="vertical" />
+          <a @click="deleteFood(obj)">删除</a>
         </span>
       </a-table>
     </a-row>
-    <a-modal v-model="visible" :destroyOnClose="true">
+    <a-modal v-model="visible" :destroyOnClose="true" @cancel="modalClose">
       <p slot="title" class="modalTitle">
-        <span>新增菜品</span>
+        <span>{{modalTitle}}</span>
         <span style="font-size:14px;margin-right:20px">操作时间:{{applyTime}}</span>
       </p>
       <span slot="footer">
         <a-button type="primary" @click="modalClose">关闭</a-button>
-        <a-button type="primary" @click="modalOk">提交</a-button>
+        <a-button v-if="!viewImg" type="primary" @click="modalOk">提交</a-button>
       </span>
       <div>
-        <a-row>
+        <a-row v-if="viewImg">
+          <img :src="src" alt="地址错误,加载失败!" width="100%" height="100%" />
+        </a-row>
+        <a-row v-else>
           <a-col span="20">
             <a-Form style="width:100%" :form="form2">
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="菜品名称">
@@ -73,7 +81,7 @@
                   placeholder="请输入菜品名称..."
                   v-decorator="['name',
                 {
-                  //initialValue:[applyResult.createTime,applyResult.updateTime],
+                  initialValue:foodInfo.name,
                   rules: [{
                     required: true,
                     message: '请输入菜品名称!'
@@ -89,6 +97,7 @@
                   style="width:100%"
                   v-decorator="['price',
                 {
+                  initialValue:foodInfo.price,
                   rules: [{
                     required: true,
                     message: '请输入菜品单价!',
@@ -99,7 +108,7 @@
               </a-form-item>
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="菜品类型">
                 <a-select
-                  v-decorator="['type',{rules: [{
+                  v-decorator="['type',{initialValue:foodInfo.type,rules: [{
                     required: true,
                     message: '请选择菜品类型!',
                   }]}]"
@@ -114,7 +123,11 @@
                 </a-select>
               </a-form-item>
               <a-form-item :label-col="labelCol" :wrapper-col="wrapperCol" label="图片地址">
-                <a-textarea placeholder="请输入菜品图片地址..." autosize v-decorator="['url']" />
+                <a-textarea
+                  placeholder="请输入菜品图片地址..."
+                  autosize
+                  v-decorator="['url',{initialValue:foodInfo.url}]"
+                />
               </a-form-item>
             </a-Form>
           </a-col>
@@ -125,7 +138,12 @@
 </template>
 
 <script>
-import { queryFoodsByPage, createFood } from "../../axios/api";
+import {
+  queryFoodsByPage,
+  createFood,
+  deleteFood,
+  updateFood
+} from "../../axios/api";
 import moment from "moment";
 const columns = [
   {
@@ -155,6 +173,13 @@ const columns = [
     dataIndex: "url",
     align: "center",
     scopedSlots: { customRender: "url" }
+  },
+  {
+    key: "action",
+    title: "操作",
+    dataIndex: "action",
+    scopedSlots: { customRender: "action" },
+    align: "center"
   }
 ];
 
@@ -163,6 +188,8 @@ export default {
     return {
       tableData: [],
       applyTime: new Date().toLocaleString(),
+      src: "", //查看图片的地址
+      viewImg: false, //判断是查看图片还是修改/添加菜品
       foodType: [
         //食品种类
         { name: "主食", key: 0 },
@@ -170,8 +197,10 @@ export default {
         { name: "饮料", key: 2 },
         { name: "套餐", key: 3 }
       ],
+      modalTitle: "", //弹出框标题
       visible: false,
       loading: false,
+      foodInfo: {}, //菜品单个信息,用于修改菜品回显
       pagination: {
         size: "small",
         current: 1,
@@ -200,6 +229,17 @@ export default {
     this.queryInitData();
   },
   methods: {
+    checkImg(src) {
+      this.viewImg = true;
+      this.visible = true;
+      this.src = src;
+      this.modalTitle = "查看图片";
+    },
+    update(obj) {
+      this.visible = true;
+      this.modalTitle = "编辑菜品";
+      this.foodInfo = obj;
+    },
     // 获取页面数据
     queryInitData() {
       this.loading = true;
@@ -235,6 +275,25 @@ export default {
         }
       });
     },
+    deleteFood(obj) {
+      let _this = this;
+      this.$confirm({
+        title: `确定删除菜品 ${obj.name} 吗?`,
+        centered: true,
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {
+          deleteFood({ id: obj.id }).then(res => {
+            if (res.code == 200) {
+              _this.$message.success("删除成功!");
+              _this.queryInitData();
+            } else {
+              _this.$message.error(res.message);
+            }
+          });
+        }
+      });
+    },
     // 表格页码,条数改动时触发
     tableChange(pag) {
       this.pagination = {
@@ -249,20 +308,33 @@ export default {
       };
       this.queryInitData();
     },
-    // 新增菜品确定时调用
+    // 新增/修改菜品确定时调用
     modalOk(e) {
       e.preventDefault();
       this.form2.validateFields((err, values) => {
         if (!err) {
-          createFood(values).then(res => {
-            if (res.code == 200) {
-              this.$message.success("新增成功!");
-              this.visible = false;
-              this.queryInitData();
-            } else {
-              this.$message.error(res.message);
-            }
-          });
+          if (this.foodInfo.id) {
+            updateFood({ ...values, id: this.foodInfo.id }).then(res => {
+              if (res.code == 200) {
+                this.$message.success("修改成功!");
+                this.visible = false;
+                this.foodInfo = {};
+                this.queryInitData();
+              } else {
+                this.$message.error(res.message);
+              }
+            });
+          } else {
+            createFood(values).then(res => {
+              if (res.code == 200) {
+                this.$message.success("新增成功!");
+                this.visible = false;
+                this.queryInitData();
+              } else {
+                this.$message.error(res.message);
+              }
+            });
+          }
         }
       });
     },
@@ -277,9 +349,12 @@ export default {
     },
     addFood() {
       this.visible = true;
+      this.modalTitle = "新增菜品";
     },
     modalClose() {
       this.visible = false;
+      this.viewImg = false;
+      this.foodInfo = {};
     }
   }
 };
