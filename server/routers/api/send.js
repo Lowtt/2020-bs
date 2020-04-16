@@ -95,10 +95,22 @@ router.post('/updatePerson', (req, res) => {
         tel,
         id
     } = req.body
+    let querySql = 'SELECT * FROM send_person WHERE name = ? AND tel = ? AND flag = 1'
     let sql = 'UPDATE send_person SET name = ? , tel = ? WHERE send_id = ?'
-    db.sqlQuery(sql, [name, tel, id]).then(() => {
-        let response = new Response('新增成功!', 200)
-        res.json(response)
+    db.sqlQuery(querySql, [name, tel]).then(result => {
+        if (result.length) {
+            let response = new Response('同名同手机号已存在!', 250)
+            res.json(response)
+        } else {
+            db.sqlQuery(sql, [name, tel, id]).then(() => {
+                let response = new Response('修改成功!', 200)
+                res.json(response)
+            }).catch(err => {
+                let response = new Response(err.code, 250)
+                res.json(response)
+            })
+
+        }
     }).catch(err => {
         res.json({
             code: 250,

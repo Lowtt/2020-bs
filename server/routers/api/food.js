@@ -149,13 +149,28 @@ router.post('/updateFood', (req, res) => {
         url,
         id
     } = req.body
+    let querySql = 'SELECT * FROM food_info WHERE name = ?'
     let updateSql = 'UPDATE food_info SET name = ?,price = ?,type = ?,url = ? WHERE id = ?'
-    db.sqlQuery(updateSql, [name, price, type, url, id]).then(() => {
-        let response = new Response('修改成功!', 200)
-        res.json(response)
+    db.sqlQuery(querySql, [name]).then(result => {
+        if (result.length) {
+            let response = new Response('该菜品已存在!', 250)
+            res.json(response)
+        } else {
+            db.sqlQuery(updateSql, [name, price, type, url,id]).then(() => {
+                let response = new Response('修改成功!', 200)
+                res.json(response)
+            }).catch(err => {
+                let response = new Response(err.code, 250)
+                res.json(response)
+            })
+
+        }
     }).catch(err => {
-        let response = new Response(err.code, 250)
-        res.json(response)
+        res.json({
+            code: 250,
+            message: err.code
+        })
+
     })
 })
 

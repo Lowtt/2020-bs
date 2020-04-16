@@ -118,8 +118,8 @@
                   <img :src="item.url" width="100%" height="100%" />
                 </a-col>
                 <a-col :span="14" style="height:73px;padding:15px">
-                  <p class="footInfo">{{item.name}}</p>
-                  <p class="footInfo" style="color:red">￥{{item.price}}</p>
+                  <p class="foodInfo">{{item.name}}</p>
+                  <p class="foodInfo" style="color:red">￥{{item.price}}</p>
                 </a-col>
               </a-row>
             </div>
@@ -143,8 +143,8 @@
                       <img :src="item.url" width="100%" height="100%" />
                     </a-col>
                     <a-col :span="14" style="height:73px;padding:15px">
-                      <p class="footInfo">{{item.name}}</p>
-                      <p class="footInfo" style="color:red">￥{{item.price}}</p>
+                      <p class="foodInfo">{{item.name}}</p>
+                      <p class="foodInfo" style="color:red">￥{{item.price}}</p>
                     </a-col>
                   </a-row>
                 </div>
@@ -484,16 +484,16 @@ export default {
       this.$message.success("删除成功!");
     },
     // 点餐触发
-    orderFood(footInfo) {
+    orderFood(foodInfo) {
       let length = this.tableData.length;
       for (let i = 0; i < length; i++) {
-        if (footInfo.id == this.tableData[i].id) {
+        if (foodInfo.id == this.tableData[i].id) {
           this.tableData[i].num += 1;
           return;
         }
       }
-      footInfo.num = 1;
-      this.tableData.push(footInfo);
+      foodInfo.num = 1;
+      this.tableData.push(foodInfo);
     },
     addFood(index) {
       this.tableData[index].num += 1;
@@ -541,7 +541,7 @@ export default {
   border: 1px dashed lightblue;
   box-sizing: border-box;
 }
-.footInfo {
+.foodInfo {
   margin: 0;
 }
 .operaInfo {

@@ -111,9 +111,9 @@ export default {
         //   top: 'middle'
         // },
         series: [
-          //系列列表
+          //图表配置
           {
-            name: "上月菜品销售TOP5", //系列名称
+            name: "上月菜品销售TOP5", //图表名称
             type: "pie", //类型 pie表示饼图
             center: ["50%", "50%"], //设置饼的原心坐标 不设置就会默认在中心的位置
             radius: [0, "68%"], //饼图的半径,第一项是内半径,第二项是外半径,内半径为0就是真的饼,不是环形
@@ -121,7 +121,6 @@ export default {
               emphasis: {
                 label: {
                   //饼图图形上的文本标签
-                  // show: false,
                   position: "center",
                   textStyle: {
                     fontSize: "10",
@@ -131,12 +130,6 @@ export default {
               }
             },
             data: resultData[2]
-            // [
-            //   { name: "汉堡", value: 20 },
-            //   { name: "米饭", value: 30 },
-            //   { name: "可乐", value: 10 },
-            //   { name: "鸡腿", value: 40 }
-            // ]
           }
         ]
       };
