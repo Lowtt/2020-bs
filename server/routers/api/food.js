@@ -19,17 +19,14 @@ router.post('/queryHotFoods', (req, res) => {
                     }
                 }
             }
-            if (result.length > 8) {
-                let response = new Response('查询成功!', 200, result.map((item, index) => {
-                    if (index < 8) {
-                        return item
-                    }
-                }))
-                res.json(response)
-            } else {
-                let response = new Response('查询成功!', 200, result)
-                res.json(response)
-            }
+            let arr = []
+            result.map((item, index) => {
+                if (index < 8) {
+                    arr.push(item)
+                }
+            })
+            let response = new Response('查询成功!', 200, arr)
+            res.json(response)
         })
 
     }).catch(err => {
