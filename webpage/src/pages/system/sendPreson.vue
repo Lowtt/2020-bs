@@ -219,6 +219,7 @@ export default {
           deletePerson({ id: obj.id }).then(res => {
             if (res.code == 200) {
               _this.$message.success("删除成功!");
+              this.queryParams = { ...this.queryParams, pageNum: 1 };
               _this.queryInitData();
             } else {
               _this.$message.error(res.message);
