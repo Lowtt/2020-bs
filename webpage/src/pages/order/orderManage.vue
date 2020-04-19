@@ -55,7 +55,7 @@
             <div style="padding-right:10px">
               <a-table
                 :columns="takeOutColumns"
-                :rowKey="record => record.name"
+                :rowKey="record => record.id"
                 :dataSource="takeOutData"
                 size="small"
                 :loading="takeOutLoading"
