@@ -528,6 +528,8 @@ export default {
   justify-content: flex-start;
   flex-wrap: wrap;
   margin-top: 20px;
+  max-height: 320px;
+  overflow: auto;
 }
 .type-food-area {
   margin: 0;
